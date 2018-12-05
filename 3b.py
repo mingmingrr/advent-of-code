@@ -4,16 +4,9 @@ pc = pp.pyparsing_common
 import numpy as np
 
 line = (
-	pp.Char('#').suppress() +
-	pc.number('id') +
-	pp.Char('@').suppress() +
-	pc.number('l') +
-	pp.Char(',').suppress() +
-	pc.number('t') +
-	pp.Char(':').suppress() +
-	pc.number('w') +
-	pp.Char('x').suppress() +
-	pc.number('h')
+	pp.Char('#').suppress() + pc.number('id') +
+	pp.Char('@').suppress() + pc.number('l') + pp.Char(',').suppress() + pc.number('t') +
+	pp.Char(':').suppress() + pc.number('w') + pp.Char('x').suppress() + pc.number('h')
 )
 
 with open('3.in', 'r') as f:
