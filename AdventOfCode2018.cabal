@@ -24,6 +24,7 @@ library
                        parsec,
                        hmatrix,
                        time,
-                       pointedlist
+                       pointedlist,
+                       lens
   -- hs-source-dirs:      
   default-language:    Haskell2010

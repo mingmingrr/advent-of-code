@@ -1,35 +1,81 @@
-{-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE TemplateHaskell, FlexibleContexts #-}
 
 import Data.List.PointedList (PointedList)
-import qualified Data.List.PointedList as PList
+import qualified Data.List.PointedList as PList hiding (moveN, deleteRight, next)
 import qualified Data.List.PointedList.Circular as PList
 import Data.Map (Map)
 import qualified Data.Map as Map
 
+import Debug.Trace
+
+import Data.Maybe
+import Data.Monoid
+import Control.Monad.RWS
+import Control.Lens
+
 import Text.Parsec
 import Text.Parsec.Char
 
-data Game = Game
-  { marbles :: PointedList Integer
-  , turn :: Integer
-  , scores :: Map Int Integer
+data GameState = GameState
+  { _marbles :: PointedList Integer
+  , _turn :: Integer
+  , _scores :: Map Integer Integer
   } deriving (Show)
+makeLenses ''GameState
 
-start = Game
-  { marbles = PList.singleton 0
-  , turn = 0
-  , scores = Map.empty
+start = GameState
+  { _marbles = PList.singleton 0
+  , _turn = 0
+  , _scores = Map.empty
   }
 
-parser :: Stream s m Char => ParsecT s u m (Integer, Integer)
-parser = do
-  players <- read <$> many1 digit
-  string " players; last marble is worth "
-  maxTurn <- read <$> many1 digit
-  string " points"
-  spaces
-  return (players, maxTurn)
+data GameEnv = GameEnv
+  { _players :: Integer
+  , _maxTurn :: Integer
+  } deriving (Show)
+makeLenses ''GameEnv
+
+parser :: Stream s m Char => ParsecT s u m GameEnv
+parser = GameEnv
+     <$> ( number <* str "players;" )
+     <*> ( str "last marble is worth" *> number <* str "points" )
+  where number = read <$> many1 digit
+        str s = spaces *> string s <* spaces
+
+type Game = RWS GameEnv [GameState] GameState
+
+runTurn :: Game ()
+runTurn = do
+  modify $ turn %~ (+1)
+  turn' <- (^.turn) <$> get
+  case turn' `mod` 23 of
+    0 -> do
+      players <- (^.players) <$> ask
+      modify $ marbles %~ PList.moveN (-7)
+      points <- (+turn') . (^. marbles . PList.focus) <$> get
+      modify $ marbles %~ fromJust . PList.deleteRight
+      modify $ scores %~ Map.alter
+        (Just . maybe points (+points))
+        ((turn'-1) `mod` players)
+    _ ->
+      modify $ marbles %~ do
+        PList.next
+        traceShowId
+        PList.insertRight turn'
+  get >>= tell . return
+
+runGame :: Game ()
+runGame = do
+  turn <- (^.turn) <$> get
+  maxTurn <- (^.maxTurn) <$> ask
+  if turn == maxTurn
+     then return ()
+     else runTurn >> runGame
 
 main = do
-  Right (players, maxTurn) <- parse parser "" <$> readFile "9.in"
-  print start
+  Right env <- parse parser "" <$> readFile "9.in"
+  let (s, w) = execRWS runGame env start
+  putStrLn "state"
+  print s
+  putStrLn "writer"
+  mapM_ print w
