@@ -44,4 +44,4 @@ main = do
   (garden, rules) <- either (error . show) id . parse parser "" <$> getContents
   let (_, w) = execRWS (get >>= tell . return . sum >> runSteps 2000) rules garden
   putStrLn "Look for a pattern, here are the first 2000 samples:"
-  mapM_ print w
+  mapM_ print . zip w . (0:) $ zipWith (-) (tail w) w
