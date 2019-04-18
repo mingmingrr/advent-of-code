@@ -11,7 +11,7 @@ grid n = build (300, 300) (builder `on` (+1) . round)
                         $ (id * y + n) * id `mod` 1000 `div` 100
 
 main = getContents >>= putStrLn
-                     . (\(x, y) -> show x ++ "," ++ show y)
+                     . (\(x, y) -> show (x+1) ++ "," ++ show (y+1))
                      . maxIndex
-                     . conv2 (konst 1 (3, 3))
+                     . corr2 (konst 1 (3, 3))
                      . grid . read

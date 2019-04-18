@@ -12,10 +12,11 @@ grid n = build (300, 300) (builder `on` (+1) . round)
                        in fromInteger . subtract 5
                         $ (id * y + n) * id `mod` 1000 `div` 100
 
-main = getContents >>= print
+main = getContents >>= putStrLn
+                     . (\(z, (x, y)) -> show (x+1) ++ "," ++ show (y+1) ++ "," ++ show z)
                      . (_2 %~ snd)
                      . maximumBy (compare `on` snd)
                      . zip ([1..300] :: [Int])
                      . map (liftM2 (,) maxElement maxIndex)
-                     . zipWith conv2 (map (konst 1 . join (,)) [1..300])
+                     . zipWith corr2 (map (konst 1 . join (,)) [1..300])
                      . repeat . grid . read
