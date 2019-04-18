@@ -1,1 +1,1 @@
-main = readFile "1.in" >>= print . sum . map (read . filter (/= '+')) . lines
+main = getContents >>= print . sum . map (read . filter (/= '+')) . lines

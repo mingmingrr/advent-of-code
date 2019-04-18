@@ -34,7 +34,7 @@ counter = Map.fromListWith (+) . map (, 1)
 tile Thing{..} = (,) <$> [l..l+w-1] <*> [t..t+h-1]
 
 main = do
-  things <- rights . map (parse thing "") . lines <$> readFile "3.in"
+  things <- rights . map (parse thing "") . lines <$> getContents
   let tiles = map tile things
       counts = counter $ concat tiles
   print . idnum . fst . head

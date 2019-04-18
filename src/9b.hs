@@ -70,7 +70,7 @@ runGame = do
      else runTurn >> runGame
 
 main = do
-  Right env <- parse parser "" <$> readFile "9.in"
+  Right env <- parse parser "" <$> getContents
   let env' = env { _maxTurn = 100 * _maxTurn env }
       (s, w) = execRWS runGame env' start
   print . maximum . Map.elems $ s ^. scores

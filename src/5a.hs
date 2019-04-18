@@ -10,4 +10,4 @@ polymerize n (a:b:c)
   | otherwise = let (t, d) = splitAt 1 n
                  in polymerize d (t ++ c)
 
-main = init <$> readFile "5.in" >>= print . length . polymerize []
+main = init <$> getContents >>= print . length . polymerize []

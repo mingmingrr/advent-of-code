@@ -4,7 +4,7 @@ import Control.Monad
 hamm = (sum .) . zipWith ((fromEnum .) . (/=))
 
 main = do
-  stuff <- lines <$> readFile "2.in"
+  stuff <- lines <$> getContents
   putStrLn . head $ do
     a <- stuff
     b <- stuff

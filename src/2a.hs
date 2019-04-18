@@ -9,6 +9,6 @@ counter = Map.fromListWith (+) . map (, 1)
 hash = nub . filter (\x -> x == 2 || x == 3) . Map.elems . counter
 
 main = do
-  stuff <- lines <$> readFile "2.in"
+  stuff <- lines <$> getContents
   print . product . Map.elems . counter $ (stuff >>= hash)
 

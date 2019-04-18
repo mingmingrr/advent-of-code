@@ -33,5 +33,5 @@ counter = Map.fromListWith (+) . map (, 1)
 
 tiles Thing{..} = (,) <$> [l..l+w-1] <*> [t..t+h-1]
 
-main = rights . map (parse thing "") . lines <$> readFile "3.in"
+main = rights . map (parse thing "") . lines <$> getContents
    >>= print . length . filter (>= 2) . Map.elems . counter . concatMap tiles

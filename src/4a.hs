@@ -46,7 +46,7 @@ counter = Map.fromListWith (+) . map (, 1)
 
 minute = (read :: String -> Int) . formatTime defaultTimeLocale "%M"
 
-main = readFile "4.in"
+main = getContents
    >>= print
      . (\(x, y) -> x * fst (maximumBy (compare `on` snd) (Map.assocs y)))
      . maximumBy (compare `on` (sum . Map.elems) . snd)
