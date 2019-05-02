@@ -82,11 +82,11 @@ parser = liftM2 (,) (many1 sample) (many1 $ lexeme instruction)
       after <- lexeme list
       return Sample{..}
 
-matches Sample{..} = filter m $ toList opcodes
-  where m op = execState (applyOp op instn) before == after
+matches :: (Bits a, Ord a, Integral a) => Opcode a -> Sample a -> Bool
+matches op Sample{..} = execState (applyOp op instn) before == after
 
 main = do
   Right parsed <- parse parser "" <$> getContents
   let samples :: [Sample Int]
       samples = fst parsed
-  print . length . filter ((>=3) . length) . map matches $ samples
+  print . length . filter ((>=3) . length) . map (\s -> filter (`matches` s) (toList opcodes)) $ samples
