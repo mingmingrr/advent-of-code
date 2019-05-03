@@ -105,23 +105,32 @@ filterOpcode samp@Sample{..} = Map.alter
   (return . filter (`matches` samp) . fromMaybe (toList opcodes))
   (fromIntegral $ instn!0)
 
-decodeOps :: Eq a => [(a, [Opcode a])] -> [(a, [Opcode a])]
-decodeOps [] = []
-decodeOps [(oc, [x])] = [(oc, [x])]
-decodeOps [(oc, _)] = []
-decodeOps ((oc, ops):as) = do
-  op@Opcode{..} <- ops
-  let remove op (oc, ops) = (oc, filter (/=op) ops)
-      as' = map (remove op) as
-      as'' = decodeOps as'
-  guard $ all ((>0) . length . snd) as'
-  guard . not $ null as''
-  (oc, [op]):as''
+newtype OpPair a = OpPair { fromOpPair :: (a, Opcode a) }
+
+instance Eq (OpPair a) where
+  (==) = (==) `on` (snd . fromOpPair)
+
+toOpPair (x, y) = map (OpPair . (x,)) y
+
+uniques :: Eq a => [[a]] -> [[a]]
+uniques [] = [[]]
+uniques [[]] = []
+uniques [x] = map pure x
+uniques (a:as) = do
+  x <- a
+  let as' = map (filter (/= x)) as
+  guard $ all ((/= 0) . length) as'
+  map (x:) (uniques as')
 
 main = do
   Right parsed <- parse parser "" <$> getContents
   let samples :: [Sample Int]
       samples = fst parsed
       instructions = snd parsed
-  print . map (map ident . snd) . decodeOps . Map.assocs . foldr filterOpcode Map.empty $ samples
+      opcodes' = Map.fromList . map fromOpPair . head
+               . uniques . map toOpPair . Map.assocs
+               . foldr filterOpcode Map.empty $ samples
+      runOp inst = applyOp (opcodes' Map.! (inst!0)) inst
+      runAll = sequence $ map runOp instructions
+  print $ execState runAll (Seq.fromList [0, 0, 0, 0]) ! 0
 
