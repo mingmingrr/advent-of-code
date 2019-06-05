@@ -25,6 +25,10 @@ library
                        hmatrix,
                        time,
                        pointedlist,
-                       lens
+                       lens,
+                       linear,
+                       pretty-simple,
+                       split,
+                       MissingH
   -- hs-source-dirs:      
   default-language:    Haskell2010
