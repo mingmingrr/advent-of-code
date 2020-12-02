@@ -3,6 +3,9 @@
 *.in
 *.out
 *.ipynb
+*.nix
+.ghci
 .ipynb_checkpoints
-dist
+dist/
+dist-newstyle/
 .stack-work
