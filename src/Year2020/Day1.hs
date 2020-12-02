@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE QuasiQuotes #-}
 {-# LANGUAGE LambdaCase #-}
@@ -54,6 +55,8 @@ import Control.Monad
 import Control.Monad.RWS
 import Control.Monad.Except
 
+import System.FilePath.Posix
+
 import Data.DList (DList)
 import qualified Data.DList as DList
 import Data.Set (Set)
@@ -63,12 +66,12 @@ import qualified Data.Map as Map
 import Data.Sequence (Seq)
 import qualified Data.Sequence as Seq
 
-part1 xs = variadicList <$> xs <*> xs
-part2 xs = variadicList <$> xs <*> xs <*> xs
+part1, part2 :: [a] -> [[a]]
+part1 = replicateM 2
+part2 = replicateM 3
 
-main = readFile "Day1.in"
-   >>= mapM_ pPrint
-     . map (id &&& product)
+main = readFile (replaceExtension __FILE__ ".in")
+   >>= mapM_ (pPrint . (id &&& product))
      . filter ((== 2020) . sum)
      . part2
      . map readInteger
