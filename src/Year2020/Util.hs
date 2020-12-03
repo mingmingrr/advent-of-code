@@ -26,8 +26,11 @@ import Data.Monoid
 import Data.List
 import Data.List.Split
 import qualified Data.PQueue.Prio.Min as Queue
+import Data.Set (Set)
 import qualified Data.Set as Set
+import Data.Map (Map)
 import qualified Data.Map as Map
+import Data.Sequence (Seq)
 import qualified Data.Sequence as Seq
 
 import Control.Monad

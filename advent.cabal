@@ -40,6 +40,8 @@ executable advent
                      , pretty-simple
                      , sbv
                      , pqueue
+                     , pointedlist
+                     , parser-combinators
 
                      , array
                      , bytestring
