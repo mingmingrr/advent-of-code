@@ -57,7 +57,7 @@ import Control.Monad
 import Control.Monad.RWS
 import Control.Monad.Except
 
-import System.FilePath.Posix
+import System.FilePath
 
 import Data.DList (DList)
 import qualified Data.DList as DList
