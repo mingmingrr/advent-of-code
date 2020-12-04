@@ -30,12 +30,14 @@ import qualified Linear.Matrix as Mat
 import Debug.Trace
 import Debug.Pretty.Simple
 
+import Text.Regex.PCRE
 import Text.Pretty.Simple
 import Text.Read (readMaybe)
-import Text.Megaparsec as Par
-import Text.Megaparsec.Char as Par
+import qualified Text.Megaparsec as Par
+import qualified Text.Megaparsec.Char as Par
 
 import qualified Data.SBV as SBV
+import Data.String.Here
 import Data.Word
 import Data.Bits
 import Data.Ratio
@@ -63,8 +65,8 @@ import Control.Lens.Operators
 import Control.Monad
 import Control.Monad.RWS
 import Control.Monad.Except
-import Control.Monad.Combinators as Comb
-import Control.Monad.Combinators.Expr as Comb
+import qualified Control.Monad.Combinators as Comb
+import qualified Control.Monad.Combinators.Expr as Comb
 
 import System.FilePath
 
@@ -78,6 +80,7 @@ import Data.DList (DList)
 import qualified Data.DList as DList
 import Data.Set (Set)
 import qualified Data.Set as Set
+import Data.Map.Syntax
 import Data.Map (Map)
 import qualified Data.Map as Map
 import Data.Sequence (Seq)
@@ -93,6 +96,6 @@ import qualified Language.Haskell.TH as TH
 import qualified Language.Haskell.TH.Syntax as TH
 
 main = do
-   input <- readFile (replaceExtension __FILE__ ".in")
-   print input
+  input <- readFile (replaceExtension __FILE__ ".in")
+  print input
 

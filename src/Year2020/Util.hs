@@ -18,6 +18,7 @@ import Text.Read (readMaybe)
 import Text.Megaparsec as Par
 import Text.Megaparsec.Char as Par
 
+import Data.String
 import Data.Maybe
 import Data.Either
 import Data.Ord
@@ -28,12 +29,15 @@ import Data.List.Split
 import qualified Data.PQueue.Prio.Min as Queue
 import Data.Set (Set)
 import qualified Data.Set as Set
+import Data.Map.Syntax
 import Data.Map (Map)
 import qualified Data.Map as Map
 import Data.Sequence (Seq)
 import qualified Data.Sequence as Seq
 
 import Control.Monad
+import qualified Control.Lens as Lens
+import Control.Lens.Operators
 
 rotateCW, rotateCCW :: Num a => V2 a -> V2 a
 rotateCW (V2 x y) = V2 (-y) x
@@ -143,4 +147,13 @@ pIdentifierWith start middle = (:) <$> start <*> many middle
 
 pIdentifier :: (Par.MonadParsec e s m, Token s ~ Char) => m String
 pIdentifier = pIdentifierWith Par.letterChar Par.alphaNumChar
+
+tuplify :: Lens.Simple Lens.Each b a => [a] -> b
+tuplify xs = undefined & Lens.partsOf Lens.each .~ xs
+
+runMap' :: Ord k => MapSyntaxM k v a -> Map k v
+runMap' = either (error "invalid MapSyntax") id . runMap
+
+between :: Ord a => a -> a -> a -> Bool
+between low high value = low <= value && value <= high
 

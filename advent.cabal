@@ -43,6 +43,8 @@ executable advent
                      , pointedlist
                      , parser-combinators
                      , algebraic-graphs
+                     , map-syntax
+                     , regex-pcre
 
                      , array
                      , bytestring

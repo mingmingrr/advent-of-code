@@ -30,12 +30,14 @@ import qualified Linear.Matrix as Mat
 import Debug.Trace
 import Debug.Pretty.Simple
 
+import Text.Regex.PCRE
 import Text.Pretty.Simple
 import Text.Read (readMaybe)
-import Text.Megaparsec as Par
-import Text.Megaparsec.Char as Par
+import qualified Text.Megaparsec as Par
+import qualified Text.Megaparsec.Char as Par
 
 import qualified Data.SBV as SBV
+import Data.String.Here
 import Data.Word
 import Data.Bits
 import Data.Ratio
@@ -63,8 +65,8 @@ import Control.Lens.Operators
 import Control.Monad
 import Control.Monad.RWS
 import Control.Monad.Except
-import Control.Monad.Combinators as Comb
-import Control.Monad.Combinators.Expr as Comb
+import qualified Control.Monad.Combinators as Comb
+import qualified Control.Monad.Combinators.Expr as Comb
 
 import System.FilePath
 
@@ -78,6 +80,7 @@ import Data.DList (DList)
 import qualified Data.DList as DList
 import Data.Set (Set)
 import qualified Data.Set as Set
+import Data.Map.Syntax
 import Data.Map (Map)
 import qualified Data.Map as Map
 import Data.Sequence (Seq)
@@ -93,33 +96,25 @@ import qualified Language.Haskell.TH as TH
 import qualified Language.Haskell.TH.Syntax as TH
 
 betweens :: Int -> Int -> String -> Bool
-betweens x y s = maybe False (\n -> x <= n && n <= y) (readMaybe s)
+betweens x y s = maybe False (between x y) (readMaybe s)
 
 fields :: Map String (String -> Bool)
-fields = Map.fromList
-  [ ("byr", betweens 1920 2002)
-  , ("iyr", betweens 2010 2020)
-  , ("eyr", betweens 2020 2030)
-  , ("hgt", \xs -> case span isDigit xs of
+fields = runMap' $ do
+  "byr" ## betweens 1920 2002
+  "iyr" ## betweens 2010 2020
+  "eyr" ## betweens 2020 2030
+  "ecl" ## (`elem` words "amb blu brn gry grn hzl oth")
+  "pid" ## \xs -> all isDigit xs && length xs == 9
+  "hcl" ## (=~ "^#[0-9a-f]{6}$")
+  "hgt" ## \xs -> case span isDigit xs of
      (n, "in") -> betweens 59 76 n
      (n, "cm") -> betweens 150 193 n
      _ -> False
-    )
-  , ("hcl", \case
-     ('#':xs) -> all isHexDigit xs && length xs == 6
-     _ -> False
-    )
-  , ("ecl", (`elem` words "amb blu brn gry grn hzl oth"))
-  , ("pid", \xs -> all isDigit xs && length xs == 9)
-  ]
 
 part1, part2 :: Map String String -> Bool
 part1 s = Map.keysSet fields `Set.isSubsetOf` Map.keysSet s
 part2 s = Map.keysSet fields `Set.isSubsetOf` Map.keysSet s
    && and [f v | (c, f) <- Map.toList fields, let v = s Map.! c]
-
-tuplify :: [a] -> (a, a)
-tuplify [x, y] = (x, y)
 
 main = do
   input <- readFile (replaceExtension __FILE__ ".in")
