@@ -18,6 +18,7 @@ import Text.Read (readMaybe)
 import Text.Megaparsec as Par
 import Text.Megaparsec.Char as Par
 
+import Data.String.Here
 import Data.String
 import Data.Maybe
 import Data.Either
@@ -38,6 +39,9 @@ import qualified Data.Sequence as Seq
 import Control.Monad
 import qualified Control.Lens as Lens
 import Control.Lens.Operators
+
+import qualified Language.Haskell.TH as TH
+import qualified Language.Haskell.TH.Quote as TH
 
 rotateCW, rotateCCW :: Num a => V2 a -> V2 a
 rotateCW (V2 x y) = V2 (-y) x
@@ -157,3 +161,8 @@ runMap' = either (error "invalid MapSyntax") id . runMap
 between :: Ord a => a -> a -> a -> Bool
 between low high value = low <= value && value <= high
 
+paragraphs :: String -> [[String]]
+paragraphs = splitWhen null . lines
+
+r :: TH.QuasiQuoter
+r = hereLit

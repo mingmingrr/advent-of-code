@@ -120,5 +120,5 @@ main = do
   input <- readFile (replaceExtension __FILE__ ".in")
   print . length . filter part2
     . map (Map.fromList . map (tuplify . splitOn ":") . (>>= words))
-    . splitOn [""] . lines $ input
+    $ paragraphs input
 
