@@ -4,6 +4,8 @@ module Year2020.Data.Cyclic where
 
 import Prelude hiding (length)
 
+import Data.Foldable hiding (length)
+
 import qualified Control.Lens as Lens
 import Control.Lens.Operators
 
@@ -12,6 +14,9 @@ import qualified Data.Sequence as Seq
 
 newtype Cyclic a = Cyclic { getCyclic :: Seq a }
   deriving (Eq, Show, Ord, Functor)
+
+fromList :: (Foldable f) => f a -> Cyclic a
+fromList  = Cyclic . Seq.fromList . toList
 
 (!) :: Cyclic a -> Int -> a
 xs ! p = Seq.index (getCyclic xs) (modSize xs p)
@@ -24,6 +29,9 @@ length = Seq.length . getCyclic
 
 newtype Cyclic2 a = Cyclic2 { getCyclic2 :: Seq (Seq a) }
   deriving (Eq, Show, Ord, Functor)
+
+fromLists :: (Foldable f1, Foldable f2) => f1 (f2 a) -> Cyclic2 a
+fromLists  = Cyclic2 . Seq.fromList . map (Seq.fromList . toList) . toList
 
 modSize2 :: ( Lens.Simple Lens.Field1 s Int
             , Lens.Simple Lens.Field2 s Int

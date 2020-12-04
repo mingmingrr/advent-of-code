@@ -68,6 +68,9 @@ import Control.Monad.Combinators.Expr as Comb
 
 import System.FilePath
 
+import Algebra.Graph (Graph)
+import qualified Algebra.Graph as Graph
+
 import Data.List.PointedList (PointedList)
 import qualified Data.List.PointedList as PList
 import qualified Data.List.PointedList.Circular as PCList
@@ -79,6 +82,8 @@ import Data.Map (Map)
 import qualified Data.Map as Map
 import Data.Sequence (Seq)
 import qualified Data.Sequence as Seq
+import Data.Tree (Tree)
+import qualified Data.Tree as Tree
 import Data.PQueue.Prio.Min (MinPQueue)
 import qualified Data.Sequence as MinPQ
 import Data.PQueue.Prio.Max (MaxPQueue)
