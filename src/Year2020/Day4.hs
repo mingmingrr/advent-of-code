@@ -103,8 +103,8 @@ fields = runMap' $ do
   "byr" ## betweens 1920 2002
   "iyr" ## betweens 2010 2020
   "eyr" ## betweens 2020 2030
-  "ecl" ## (`elem` words "amb blu brn gry grn hzl oth")
-  "pid" ## \xs -> all isDigit xs && length xs == 9
+  "ecl" ## (=~ "^(amb|blu|brn|gry|grn|hzl|oth)$")
+  "pid" ## (=~ "^[0-9]{9}$")
   "hcl" ## (=~ "^#[0-9a-f]{6}$")
   "hgt" ## \xs -> case span isDigit xs of
      (n, "in") -> betweens 59 76 n
