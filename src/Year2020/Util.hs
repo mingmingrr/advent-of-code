@@ -14,6 +14,7 @@ import Numeric
 
 import Linear.V2
 
+import Text.Pretty.Simple
 import Text.Read (readMaybe)
 import Text.Megaparsec as Par
 import Text.Megaparsec.Char as Par
@@ -35,6 +36,7 @@ import Data.Map (Map)
 import qualified Data.Map as Map
 import Data.Sequence (Seq)
 import qualified Data.Sequence as Seq
+import qualified Data.Text.Lazy as TextL
 
 import Control.Monad
 import qualified Control.Lens as Lens
@@ -166,3 +168,7 @@ paragraphs = splitWhen null . lines
 
 r :: TH.QuasiQuoter
 r = hereLit
+
+pShow' :: Show a => a -> String
+pShow' = TextL.unpack . pShow
+
