@@ -114,14 +114,10 @@ parser = fmap Map.fromList . many $ do
 
 part1, part2 :: Bags -> Int
 part1 bags = length . filter filt $ Map.keys bags where
-  filt name = case bags Map.!? name of
-    Nothing -> False
-    Just subs -> Map.member "shiny gold" subs
-              || any filt (Map.keys subs)
+  filt name = Map.member "shiny gold" subs || any filt (Map.keys subs)
+    where subs = bags Map.! name
 part2 bags = look "shiny gold" - 1 where
-  look name = case bags Map.!? name of
-    Nothing -> 1
-    Just subs -> 1 + sum [v * look k | (k, v) <- Map.assocs subs]
+  look name = 1 + sum [v * look k | (k, v) <- Map.assocs (bags Map.! name)]
 
 main = do
   input <- readFile (replaceExtension __FILE__ ".in")
