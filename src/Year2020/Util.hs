@@ -28,7 +28,15 @@ import Data.Void
 import Data.Monoid
 import Data.List
 import Data.List.Split
+
+import Data.PQueue.Prio.Min (MinPQueue)
 import qualified Data.PQueue.Prio.Min as Queue
+import Data.Bimap (Bimap)
+import qualified Data.Bimap as Bimap
+import Data.Tree (Tree)
+import qualified Data.Tree as Tree
+import Data.Graph.Inductive (Graph)
+import qualified Data.Graph.Inductive as Graph
 import Data.Set (Set)
 import qualified Data.Set as Set
 import Data.Map.Syntax
@@ -171,4 +179,24 @@ r = hereLit
 
 pShow' :: Show a => a -> String
 pShow' = TextL.unpack . pShow
+
+nubSet :: Ord a => [a] -> [a]
+nubSet = Set.toList . Set.fromList
+
+fromEdges :: (Graph gr, Ord a) => [(a, a, b)] -> (Bimap Int a, gr a b)
+fromEdges edges = (bimap, Graph.mkGraph (Bimap.assocs bimap) edges')
+  where bimap = Bimap.fromList . zip [0..] . nubSet $
+          edges ^.. Lens.folded . (Lens._1 <> Lens._2)
+        edges' = [(bimap Bimap.!> a, bimap Bimap.!> b, c) | (a,b,c) <- edges]
+
+xdffWith' :: Graph gr
+  => Graph.CFun a b [Graph.Node] -> Graph.CFun a b c
+  -> [Graph.Node] -> gr a b -> [Tree.Tree c]
+xdffWith' _ _ [] _ = []
+xdffWith' _ _ _ g | Graph.isEmpty g = []
+xdffWith' d f (v:vs) g = case Graph.match v g of
+  (Nothing, _) -> xdffWith' d f vs g
+  (Just c, _)-> Tree.Node (f c) ts : ts'
+    where ts = xdffWith' d f (d c) g
+          ts' = xdffWith' d f vs g
 

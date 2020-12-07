@@ -71,9 +71,8 @@ import qualified Control.Monad.Combinators.Expr as Comb
 
 import System.FilePath
 
-import Algebra.Graph (Graph)
-import qualified Algebra.Graph as Graph
-
+import Data.Graph.Inductive (Graph, Gr)
+import qualified Data.Graph.Inductive as Graph
 import Data.List.PointedList (PointedList)
 import qualified Data.List.PointedList as PList
 import qualified Data.List.PointedList.Circular as PCList
@@ -84,6 +83,8 @@ import qualified Data.Set as Set
 import Data.Map.Syntax
 import Data.Map (Map)
 import qualified Data.Map as Map
+import Data.Bimap (Bimap)
+import qualified Data.Bimap as Bimap
 import Data.Sequence (Seq)
 import qualified Data.Sequence as Seq
 import Data.Tree (Tree)

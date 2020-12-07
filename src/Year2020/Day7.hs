@@ -14,7 +14,7 @@
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE TemplateHaskell #-}
 
-module Year2020.DayX where
+module Year2020.Day7 where
 
 import Year2020.Util
 import Year2020.Data.Cyclic (Cyclic, Cyclic2)
@@ -71,9 +71,8 @@ import qualified Control.Monad.Combinators.Expr as Comb
 
 import System.FilePath
 
-import Algebra.Graph (Graph)
-import qualified Algebra.Graph as Graph
-
+import Data.Graph.Inductive (Graph, Gr)
+import qualified Data.Graph.Inductive as Graph
 import Data.List.PointedList (PointedList)
 import qualified Data.List.PointedList as PList
 import qualified Data.List.PointedList.Circular as PCList
@@ -84,6 +83,8 @@ import qualified Data.Set as Set
 import Data.Map.Syntax
 import Data.Map (Map)
 import qualified Data.Map as Map
+import Data.Bimap (Bimap)
+import qualified Data.Bimap as Bimap
 import Data.Sequence (Seq)
 import qualified Data.Sequence as Seq
 import Data.Tree (Tree)
@@ -96,30 +97,28 @@ import qualified Data.Sequence as MaxPQ
 import qualified Language.Haskell.TH as TH
 import qualified Language.Haskell.TH.Syntax as TH
 
-type Bags = Map String (Map String Int)
-
-parser :: ParserSimple Bags
-parser = fmap Map.fromList . many $ do
-  name <- Comb.manyTill Par.anySingle (Par.string " bags contain ")
+parser :: ParserSimple [(String, String, Int)]
+parser = fmap concat . many $ do
+  name <- Comb.someTill Par.anySingle (Par.string " bags contain ")
   let subbag = do
         count <- pInteger <* Par.space
-        name <- Comb.manyTill Par.anySingle (Par.string " bag")
+        name' <- Comb.someTill Par.anySingle (Par.string " bag")
         optional (Par.single 's')
-        return (name, count)
+        return (name, name', count)
   subs <- Par.string "no other bags" $> []
       <|> Comb.sepBy1 subbag (Par.string ", ")
   Par.single '.'
   Par.eof <|> void Par.eol
-  return (name, Map.fromList subs)
+  return subs
 
-part1, part2 :: Bags -> Int
-part1 bags = length . filter filt $ Map.keys bags where
-  filt name = Map.member "shiny gold" subs || any filt (Map.keys subs)
-    where subs = bags Map.! name
-part2 bags = look "shiny gold" - 1 where
-  look name = 1 + sum [v * look k | (k, v) <- Map.assocs (bags Map.! name)]
+part1, part2 :: Graph.Node -> Gr String Int -> Int
+part1 start graph = pred . length . Graph.reachable start $ Graph.grev graph
+part2 start graph = pred . Tree.foldTree (\x ys -> 1 + sum (zipWith (*) x ys))
+  . head $ xdffWith' Graph.suc' (^.. Lens._4 . Lens.folded . Lens._1) [start] graph
 
 main = do
   input <- readFile (replaceExtension __FILE__ ".in")
-  print . part1 $ parseError parser input
+  let (bimap, graph) = fromEdges $ parseError parser input
+      start = bimap Bimap.!> "shiny gold"
+  print $ part2 start graph
 
