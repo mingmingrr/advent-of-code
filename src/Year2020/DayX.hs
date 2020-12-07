@@ -62,6 +62,7 @@ import Control.Arrow
 import Control.Concurrent
 import qualified Control.Lens as Lens
 import Control.Lens.Operators
+import Control.Applicative
 import Control.Monad
 import Control.Monad.RWS
 import Control.Monad.Except
