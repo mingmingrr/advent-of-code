@@ -121,10 +121,10 @@ readInteger = read
 
 type ParserSimple a = Par.Parsec Void String a
 
-parserSimple :: Par.Parsec Void String a -> Par.Parsec Void String a
+parserSimple :: ParserSimple a -> ParserSimple a
 parserSimple = id
 
-parseError :: Par.Parsec Void String a -> String -> a
+parseError :: ParserSimple a -> String -> a
 parseError p = either (error . Par.errorBundlePretty) id . Par.parse p ""
 
 traceShowWith :: Show b => (a -> b) -> a -> a

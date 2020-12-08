@@ -104,7 +104,55 @@ import qualified Data.Sequence as MaxPQ
 import qualified Language.Haskell.TH as TH
 import qualified Language.Haskell.TH.Syntax as TH
 
+type Program = IntMap [String]
+
+data Registers = Registers
+  { _pc :: Int
+  , _acc :: Int
+  , _seen :: Set Int
+  , _mem :: Program
+  } deriving (Eq, Show)
+Lens.makeLenses ''Registers
+
+type Console m a = StateT Registers m a
+
+decode :: Monad m => [String] -> (Int -> Console m a) -> Console m a
+decode [inst, arg] cont = case inst of
+  "nop" -> cont 1
+  "acc" -> acc += num >> cont 1
+  "jmp" -> cont num
+  where num = parseError (Lex.signed mempty Lex.decimal) arg
+
+runConsoleT :: Monad m => Program -> m (Bool, Registers)
+runConsoleT prog = evalStateT (run 0) (Registers 0 0 Set.empty prog) where
+  run step = do
+    pc += step
+    cur <- Lens.use pc
+    Lens.use (seen . Lens.contains cur) >>= \case
+      True -> gets (False,)
+      False -> do
+        seen . Lens.contains cur .= True
+        Lens.use (mem . Lens.at cur) >>= \case
+          Nothing -> gets (True,)
+          Just inst -> decode inst run
+
+runConsole :: Program -> (Bool, Registers)
+runConsole = runIdentity . runConsoleT
+
+programFromList :: [[String]] -> IntMap [String]
+programFromList = IntMap.fromList . zip [0..]
+
+part1, part2 :: [[String]] -> Int
+part1 prog = runConsole (programFromList prog) ^. Lens._2 . acc
+part2 prog = head [ regs ^. acc
+  | (search, replace) <- [("jmp", "nop"), ("nop", "jmp")]
+  , (index, inst:_) <- zip [0..] prog
+  , inst == search
+  , let prog' = prog & Lens.ix index . Lens._head .~ replace
+  , let (term, regs) = runConsole (programFromList prog')
+  , term ]
+
 main = do
   input <- readFile (replaceExtension __FILE__ ".in")
-  print input
+  print . part1 . map words $ lines input
 
