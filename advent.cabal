@@ -45,6 +45,8 @@ executable advent
                      , algebraic-graphs
                      , map-syntax
                      , regex-pcre
+                     , extra
+                     , bimap
 
                      , array
                      , bytestring
