@@ -47,6 +47,7 @@ executable advent
                      , regex-pcre
                      , extra
                      , bimap
+                     , data-default
 
                      , array
                      , bytestring

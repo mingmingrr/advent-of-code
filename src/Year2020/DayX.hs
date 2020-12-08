@@ -22,6 +22,8 @@ import qualified Year2020.Data.Cyclic as Cyclic
 
 import Numeric
 
+import GHC.Generics
+
 import qualified Linear as Lin
 import Linear.V2
 import Linear.V3
@@ -39,6 +41,7 @@ import qualified Text.Megaparsec.Char.Lexer as Lex
 
 import qualified Data.SBV as SBV
 import Data.String.Here
+import Data.Default
 import Data.Word
 import Data.Bits
 import Data.Ratio
@@ -66,6 +69,7 @@ import qualified Control.Lens as Lens
 import Control.Lens.Operators
 import Control.Applicative
 import Control.Monad
+import Control.Monad.Extra
 import Control.Monad.Reader
 import Control.Monad.Writer
 import Control.Monad.State

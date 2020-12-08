@@ -5,6 +5,8 @@
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE DeriveFunctor #-}
 {-# LANGUAGE DeriveFoldable #-}
+{-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE DeriveAnyClass #-}
 {-# LANGUAGE GeneralisedNewtypeDeriving #-}
 {-# LANGUAGE PartialTypeSignatures #-}
 {-# LANGUAGE NumDecimals #-}
@@ -21,6 +23,8 @@ import Year2020.Data.Cyclic (Cyclic, Cyclic2)
 import qualified Year2020.Data.Cyclic as Cyclic
 
 import Numeric
+
+import GHC.Generics
 
 import qualified Linear as Lin
 import Linear.V2
@@ -39,6 +43,7 @@ import qualified Text.Megaparsec.Char.Lexer as Lex
 
 import qualified Data.SBV as SBV
 import Data.String.Here
+import Data.Default
 import Data.Word
 import Data.Bits
 import Data.Ratio
@@ -66,6 +71,7 @@ import qualified Control.Lens as Lens
 import Control.Lens.Operators
 import Control.Applicative
 import Control.Monad
+import Control.Monad.Extra
 import Control.Monad.Reader
 import Control.Monad.Writer
 import Control.Monad.State
@@ -111,7 +117,7 @@ data Registers = Registers
   , _acc :: Int
   , _seen :: Set Int
   , _mem :: Program
-  } deriving (Eq, Show)
+  } deriving (Eq, Show, Generic, Default)
 Lens.makeLenses ''Registers
 
 type Console m a = StateT Registers m a
@@ -119,22 +125,15 @@ type Console m a = StateT Registers m a
 decode :: Monad m => [String] -> (Int -> Console m a) -> Console m a
 decode [inst, arg] cont = case inst of
   "nop" -> cont 1
-  "acc" -> acc += num >> cont 1
   "jmp" -> cont num
+  "acc" -> acc += num >> cont 1
   where num = parseError (Lex.signed mempty Lex.decimal) arg
 
 runConsoleT :: Monad m => Program -> m (Bool, Registers)
-runConsoleT prog = evalStateT (run 0) (Registers 0 0 Set.empty prog) where
-  run step = do
-    pc += step
-    cur <- Lens.use pc
-    Lens.use (seen . Lens.contains cur) >>= \case
-      True -> gets (False,)
-      False -> do
-        seen . Lens.contains cur .= True
-        Lens.use (mem . Lens.at cur) >>= \case
-          Nothing -> gets (True,)
-          Just inst -> decode inst run
+runConsoleT prog = evalStateT (run 0) (def & mem .~ prog) where
+  run step = pc <+= step >>= \cur ->
+    ifM (seen . Lens.contains cur <<.= True) (gets (False,)) $
+      Lens.use (mem . Lens.at cur) >>= maybe (gets (True,)) (`decode` run)
 
 runConsole :: Program -> (Bool, Registers)
 runConsole = runIdentity . runConsoleT
@@ -146,10 +145,9 @@ part1, part2 :: [[String]] -> Int
 part1 prog = runConsole (programFromList prog) ^. Lens._2 . acc
 part2 prog = head [ regs ^. acc
   | (search, replace) <- [("jmp", "nop"), ("nop", "jmp")]
-  , (index, inst:_) <- zip [0..] prog
-  , inst == search
+  , index <- findIndices ((== search) . head) prog
   , let prog' = prog & Lens.ix index . Lens._head .~ replace
-  , let (term, regs) = runConsole (programFromList prog')
+        (term, regs) = runConsole (programFromList prog')
   , term ]
 
 main = do
