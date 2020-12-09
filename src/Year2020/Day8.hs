@@ -110,20 +110,20 @@ import qualified Data.Sequence as MaxPQ
 import qualified Language.Haskell.TH as TH
 import qualified Language.Haskell.TH.Syntax as TH
 
-type Program = IntMap [String]
+type Instruction = (String, [String])
+type Program = IntMap (Maybe Instruction)
 
 data Registers = Registers
   { _pc :: Int
   , _acc :: Int
-  , _seen :: Set Int
   , _mem :: Program
   } deriving (Eq, Show, Generic, Default)
 Lens.makeLenses ''Registers
 
 type Console m a = StateT Registers m a
 
-decode :: Monad m => [String] -> (Int -> Console m a) -> Console m a
-decode [inst, arg] cont = case inst of
+decode :: Monad m => Instruction -> (Int -> Console m a) -> Console m a
+decode (inst, [arg]) cont = case inst of
   "nop" -> cont 1
   "jmp" -> cont num
   "acc" -> acc += num >> cont 1
@@ -132,14 +132,16 @@ decode [inst, arg] cont = case inst of
 runConsoleT :: Monad m => Program -> m (Bool, Registers)
 runConsoleT prog = evalStateT (run 0) (def & mem .~ prog) where
   run step = pc <+= step >>= \cur ->
-    ifM (seen . Lens.contains cur <<.= True) (gets (False,)) $
-      Lens.use (mem . Lens.at cur) >>= maybe (gets (True,)) (`decode` run)
+    mem . Lens.at cur <<.= Just Nothing >>= \case
+      Nothing -> gets (True,)
+      Just Nothing -> gets (False,)
+      Just (Just inst) -> decode inst run
 
 runConsole :: Program -> (Bool, Registers)
 runConsole = runIdentity . runConsoleT
 
-programFromList :: [[String]] -> IntMap [String]
-programFromList = IntMap.fromList . zip [0..]
+programFromList :: [[String]] -> Program
+programFromList = IntMap.fromList . zip [0..] . map uncons
 
 part1, part2 :: [[String]] -> Int
 part1 prog = runConsole (programFromList prog) ^. Lens._2 . acc
