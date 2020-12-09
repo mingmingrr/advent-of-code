@@ -65,6 +65,7 @@ import Data.Conduit ((.|))
 
 import Control.Arrow
 import Control.Concurrent
+import Control.Lens (_1, _2, _3, _4, _5, _6, _7, _8)
 import qualified Control.Lens as Lens
 import Control.Lens.Operators
 import Control.Applicative
@@ -96,7 +97,7 @@ import Data.IntMap (IntMap)
 import qualified Data.IntMap as IntMap
 import Data.Bimap (Bimap)
 import qualified Data.Bimap as Bimap
-import Data.Sequence (Seq)
+import Data.Sequence (Seq((:<|), (:|>)))
 import qualified Data.Sequence as Seq
 import Data.Tree (Tree)
 import qualified Data.Tree as Tree
