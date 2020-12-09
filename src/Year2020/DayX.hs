@@ -46,10 +46,11 @@ import Data.Word
 import Data.Bits
 import Data.Ratio
 import Data.Bool
-import Data.Bifunctor
+import Data.Bifunctor hiding (first, second)
 import Data.Complex
 import Data.Foldable
 import Data.Char
+import Data.Semigroup
 import Data.Monoid
 import Data.Functor
 import Data.Ord

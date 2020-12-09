@@ -14,7 +14,7 @@
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE TemplateHaskell #-}
 
-module Main where
+module Year2020.Day9 where
 
 import Year2020.Util
 import Year2020.Data.Cyclic (Cyclic, Cyclic2)
