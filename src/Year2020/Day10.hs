@@ -110,13 +110,20 @@ import qualified Data.Sequence as MaxPQ
 import qualified Language.Haskell.TH as TH
 import qualified Language.Haskell.TH.Syntax as TH
 
+tribonacci :: Integral a => [a]
+tribonacci = 0 : 0 : 1 : zipWith3 (\x y z -> x + y + z)
+  tribonacci (tail tribonacci) (drop 2 tribonacci)
+
+difference :: Num a => [a] -> [a]
+difference = zipWith (-) <$> tail <*> id
+
+countStep :: (Num a, Ord a) => a -> [a] -> a
+countStep n = fromIntegral . length . filter (== n) . difference
+
 part1, part2 :: [Int] -> Int
-part1 = ((*) <$> succ . stepOf 3 <*> stepOf 1) . (0:) where
-  stepOf n = length . filter (== n) . (zipWith (-) <$> tail <*> id)
-part2 = flip div 2 . combinations 0 where
-  combinations = memoize2 $ \n -> \case
-    x:xs -> if n + 3 >= x then combinations n xs + combinations x xs else 0
-    [] -> 1
+part1 = ((*) <$> succ . countStep 3 <*> countStep 1) . (0:)
+part2 = product . map ((tribonacci !!) . (+ 2) . length)
+      . filter ((== 1) . head) . group . difference . (0:)
 
 main = do
   input <- readFile (replaceExtension __FILE__ ".in")
