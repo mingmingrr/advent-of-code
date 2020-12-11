@@ -110,7 +110,7 @@ import qualified Data.Sequence as MaxPQ
 import qualified Language.Haskell.TH as TH
 import qualified Language.Haskell.TH.Syntax as TH
 
-tribonacci :: Integral a => [a]
+tribonacci :: Num a => [a]
 tribonacci = 0 : 0 : 1 : zipWith3 (\x y z -> x + y + z)
   tribonacci (tail tribonacci) (drop 2 tribonacci)
 
@@ -120,7 +120,7 @@ difference = zipWith (-) <$> tail <*> id
 countStep :: (Num a, Ord a) => a -> [a] -> a
 countStep n = fromIntegral . length . filter (== n) . difference
 
-part1, part2 :: [Int] -> Int
+part1, part2 :: [Integer] -> Integer
 part1 = ((*) <$> succ . countStep 3 <*> countStep 1) . (0:)
 part2 = product . map ((tribonacci !!) . (+ 2) . length)
       . filter ((== 1) . head) . group . difference . (0:)

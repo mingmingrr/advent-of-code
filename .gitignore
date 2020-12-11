@@ -1,12 +1,11 @@
 *.bak
+*.dyn_o
+*.dyn_hi
 *.o
 *.in
 *.out
 *.ipynb
 *.nix
-.ghci
-.ipynb_checkpoints
+.*
 dist/
 dist-newstyle/
-.stack-work
-.nixpkgs/

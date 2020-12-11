@@ -48,6 +48,7 @@ executable advent
                      , extra
                      , bimap
                      , data-default
+                     , pipes
 
                      , array
                      , bytestring

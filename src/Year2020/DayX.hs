@@ -19,6 +19,8 @@ module Year2020.DayX where
 import Year2020.Util
 import Year2020.Data.Cyclic (Cyclic, Cyclic2)
 import qualified Year2020.Data.Cyclic as Cyclic
+import Year2020.Data.Grid (Grid)
+import qualified Year2020.Data.Grid as Grid
 
 import Numeric
 
@@ -64,6 +66,9 @@ import Data.List.Split
 import qualified Data.Conduit as Cond
 import Data.Conduit ((.|))
 
+import Control.Parallel
+import Control.Parallel.Strategies
+import Control.DeepSeq
 import Control.Arrow
 import Control.Concurrent
 import Control.Lens (_1, _2, _3, _4, _5, _6, _7, _8)
