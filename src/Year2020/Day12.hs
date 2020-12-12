@@ -118,23 +118,25 @@ import qualified Language.Haskell.TH.Syntax as TH
 data Ship = Ship
   { _pos :: V2 Int
   , _dir :: V2 Int
-  , _way :: V2 Int
   } deriving Show
 Lens.makeLenses ''Ship
 
-instance Default Ship where
-  def = Ship { _pos=V2 0 0, _way=V2 10 1, _dir=V2 1 0 }
+part1, part2 :: (V2 Int, Lens.ReifiedLens' Ship (V2 Int))
+part1 = (V2 1 0, Lens.Lens pos)
+part2 = (V2 10 0, Lens.Lens dir)
 
-move :: String -> State Ship ()
-move (fmap (second read) . uncons -> Just (chr, step)) =
+move :: Lens.Lens' Ship (V2 Int) -> String -> State Ship ()
+move lens (fmap (second read) . uncons -> Just (chr, step)) =
   case directions Map.!? chr of
-    Just d -> way += fromIntegral step * d
+    Just d -> lens += fromIntegral step * d
     Nothing -> case chr of
-      'F' -> Lens.uses way (* fromIntegral step) >>= (pos +=)
-      'R' -> way %= (!! mod (div step 90) 4) . iterate clockWise
-      'L' -> way %= (!! mod (div step 90) 4) . iterate counterClockWise
+      'F' -> Lens.uses dir (* fromIntegral step) >>= (pos +=)
+      'R' -> dir %= (!! mod (div step 90) 4) . iterate clockWise
+      'L' -> dir %= (!! mod (div step 90) 4) . iterate counterClockWise
 
 main = do
   input <- readFile (replaceExtension __FILE__ ".in")
-  print . sum . _pos . flip execState def . mapM_ move $ lines input
+  let (ship, lens) = first (Ship (V2 0 0)) part2
+  print . sum . abs . _pos . flip execState ship
+    . mapM_ (move (Lens.runLens lens)) $ lines input
 
