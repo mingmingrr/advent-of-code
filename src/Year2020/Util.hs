@@ -14,6 +14,7 @@ import Debug.Trace
 import Numeric
 
 import Linear.V2
+import qualified Linear.Matrix as Mat
 
 import Text.Pretty.Simple
 import Text.Read (readMaybe)
@@ -25,6 +26,7 @@ import Data.String
 import Data.Maybe
 import Data.Either
 import Data.Ord
+import Data.Char
 import Data.Void
 import Data.Monoid
 import Data.List
@@ -200,4 +202,15 @@ xdffWith' d f (v:vs) g = case Graph.match v g of
   (Just c, _)-> Tree.Node (f c) ts : ts'
     where ts = xdffWith' d f (d c) g
           ts' = xdffWith' d f vs g
+
+directions :: Map Char (V2 Int)
+directions = runMap' $ do
+  'N' ## V2 0 1
+  'S' ## V2 0 (-1)
+  'E' ## V2 1 0
+  'W' ## V2 (-1) 0
+
+clockWise, counterClockWise :: V2 Int -> V2 Int
+clockWise = (Mat.*! V2 (V2 0 (-1)) (V2 1 0))
+counterClockWise = (Mat.*! V2 (V2 0 1) (V2 (-1) 0))
 

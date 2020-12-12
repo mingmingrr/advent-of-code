@@ -49,6 +49,7 @@ executable advent
                      , bimap
                      , data-default
                      , pipes
+                     , massiv
 
                      , array
                      , bytestring
