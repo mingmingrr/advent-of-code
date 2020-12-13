@@ -211,6 +211,6 @@ directions = runMap' $ do
   'W' ## V2 (-1) 0
 
 clockWise, counterClockWise :: V2 Int -> V2 Int
-clockWise = (Mat.*! V2 (V2 0 (-1)) (V2 1 0))
-counterClockWise = (Mat.*! V2 (V2 0 1) (V2 (-1) 0))
+clockWise = negate . perp
+counterClockWise = perp
 
