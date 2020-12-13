@@ -129,9 +129,8 @@ part2 t = print . snd . foldl func (1,1) where
 part2' t xs = print <=< SBV.satWith SBV.yices $ do
   n <- SBV.sInteger "n"
   SBV.constrain $ n SBV..> 0
-  SBV.constrain $ SBV.sAnd
-    [ snd (SBV.sQuotRem (n + i) x) SBV..== 0
-    | (i, x) <- map (fromInteger *** fromInteger) xs ]
+  forM_ xs $ \(i, x) -> SBV.constrain $
+    snd (SBV.sQuotRem (n + fromInteger i) (fromInteger x)) SBV..== 0
 
 main = do
   input <- readFile (replaceExtension __FILE__ ".in")
