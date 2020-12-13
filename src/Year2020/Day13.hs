@@ -22,6 +22,8 @@ import qualified Year2020.Data.Cyclic as Cyclic
 import Year2020.Data.Grid (Grid)
 import qualified Year2020.Data.Grid as Grid
 
+import Math.NumberTheory.Moduli
+
 import Numeric
 
 import GHC.Generics
@@ -115,17 +117,20 @@ import qualified Data.Sequence as MaxPQ
 import qualified Language.Haskell.TH as TH
 import qualified Language.Haskell.TH.Syntax as TH
 
-part1 :: Integer -> [(Integer, Integer)] -> Integer
+invMod :: Integer -> Integer -> Integer
+invMod n m = case invertSomeMod (n `modulo` fromInteger m) of
+  Just (SomeMod k) -> getVal k
+
+part1, part2 :: Integer -> [(Integer, Integer)] -> Integer
 part1 t = uncurry (*) . first (subtract t) . minimum
   . map ((\n -> (div (t - 1) n * n + n, n)) . snd)
 part2 t = snd . foldl func (1,1) where
-  func (m,n) (i,x) = (lcm m x,) . head
-    . filter (\n -> mod (n+i) x == 0) $ iterate (+m) n
+  func (m,n) (i,v) = (lcm m v, n + m * mod ((-i-n) * invMod m v) v)
 
 main = do
   input <-readFile (replaceExtension __FILE__ ".in")
   let [time, nums] = lines input
-  print . part1 (read time) . catMaybes
+  print . part2 (read time) . traceShowId . catMaybes
     . zipWith (\x y -> (x,)<$>y) [0..]
     . map (readsMaybe readDec)
     $ splitOn "," nums
