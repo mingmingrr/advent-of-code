@@ -121,16 +121,22 @@ invMod :: Integer -> Integer -> Integer
 invMod n m = case invertSomeMod (n `modulo` fromInteger m) of
   Just (SomeMod k) -> getVal k
 
-part1, part2 :: Integer -> [(Integer, Integer)] -> Integer
-part1 t = uncurry (*) . first (subtract t) . minimum
+part1, part2, part2' :: Integer -> [(Integer, Integer)] -> IO ()
+part1 t = print . uncurry (*) . first (subtract t) . minimum
   . map ((\n -> (div (t - 1) n * n + n, n)) . snd)
-part2 t = snd . foldl func (1,1) where
+part2 t = print . snd . foldl func (1,1) where
   func (m,n) (i,v) = (lcm m v, n + m * mod ((-i-n) * invMod m v) v)
+part2' t xs = print <=< SBV.satWith SBV.yices $ do
+  n <- SBV.sInteger "n"
+  SBV.constrain $ n SBV..> 0
+  SBV.constrain $ SBV.sAnd
+    [ snd (SBV.sQuotRem (n + i) x) SBV..== 0
+    | (i, x) <- map (fromInteger *** fromInteger) xs ]
 
 main = do
-  input <-readFile (replaceExtension __FILE__ ".in")
+  input <- readFile (replaceExtension __FILE__ ".in")
   let [time, nums] = lines input
-  print . part2 (read time) . traceShowId . catMaybes
+  part2' (read time) . catMaybes
     . zipWith (\x y -> (x,)<$>y) [0..]
     . map (readsMaybe readDec)
     $ splitOn "," nums
