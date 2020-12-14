@@ -50,6 +50,9 @@ executable advent
                      , data-default
                      , pipes
                      , massiv
+                     , newtype
+                     , Chart
+                     , Chart-cairo
 
                      , array
                      , bytestring

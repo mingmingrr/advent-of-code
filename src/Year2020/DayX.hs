@@ -73,6 +73,7 @@ import Control.Arrow
 import Control.Concurrent
 import Control.Lens (_1, _2, _3, _4, _5, _6, _7, _8)
 import qualified Control.Lens as Lens
+import qualified Numeric.Lens as Lens
 import Control.Lens.Operators
 import Control.Applicative
 import Control.Monad

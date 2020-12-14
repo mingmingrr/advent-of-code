@@ -116,20 +116,17 @@ import qualified Data.Sequence as MaxPQ
 import qualified Language.Haskell.TH as TH
 import qualified Language.Haskell.TH.Syntax as TH
 
-part1, part2 :: (String, IntMap Integer) -> [String] -> (String, IntMap Integer)
+part1, part2 :: (String, IntMap Int) -> [String] -> (String, IntMap Int)
 part1 (mask, mem) [x] = (x, mem)
 part1 (mask, mem) [x, y] = (mask, IntMap.insert (read x) value mem) where
   pick c = map (bool '0' '1' . (== c)) mask ^. Lens.singular Lens.binary
   value = (pick 'X' .&. read y) .|. pick '1'
 part2 (mask, mem) [x] = (x, mem)
 part2 (mask, mem) [x, y] = (mask, new <> mem) where
-  float _ [] = [[]]
-  float (m:ms) (x:xs) = concatMap (<$> float ms xs) $ case m of
-    '0' -> [(x:)] ; '1' -> [('1':)] ; 'X' -> [('0':), ('1':)]
   new = IntMap.fromList [(a ^. Lens.singular Lens.binary, read y)
-    | a <- float mask (pad (Lens.review Lens.binary (read x :: Int)))]
+    | a <- sequence . float mask . pad $ Lens.review Lens.binary (read x)]
+  float = zipWith (\case '0' -> pure; '1' -> const "1"; 'X' -> const "01")
   pad xs = replicate (36 - length xs) '0' ++ xs
-
 
 main = do
   input <- readFile (replaceExtension __FILE__ ".in")
