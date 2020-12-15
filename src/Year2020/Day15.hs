@@ -1,6 +1,7 @@
 {-# LANGUAGE CPP #-}
 {-# LANGUAGE TupleSections #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE ExplicitForAll #-}
 {-# LANGUAGE QuasiQuotes #-}
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE DeriveFunctor #-}
@@ -83,6 +84,7 @@ import Control.Monad.Writer
 import Control.Monad.State
 import Control.Monad.RWS
 import Control.Monad.Except
+import Control.Monad.ST
 import qualified Control.Monad.Combinators as Comb
 import qualified Control.Monad.Combinators.Expr as Comb
 
@@ -106,6 +108,16 @@ import Data.Bimap (Bimap)
 import qualified Data.Bimap as Bimap
 import Data.Sequence (Seq((:<|), (:|>)))
 import qualified Data.Sequence as Seq
+import Data.Vector.Generic (Vector)
+import Data.Vector.Generic.Mutable (MVector)
+import qualified Data.Vector as VecB
+import qualified Data.Vector.Mutable as VecBM
+import qualified Data.Vector.Unboxed as VecU
+import qualified Data.Vector.Unboxed.Mutable as VecUM
+import qualified Data.Vector.Storable as VecS
+import qualified Data.Vector.Storable.Mutable as VecSM
+import qualified Data.Vector.Generic as Vec
+import qualified Data.Vector.Generic.Mutable as VecM
 import Data.Tree (Tree)
 import qualified Data.Tree as Tree
 import Data.PQueue.Prio.Min (MinPQueue)
@@ -116,13 +128,18 @@ import qualified Data.Sequence as MaxPQ
 import qualified Language.Haskell.TH as TH
 import qualified Language.Haskell.TH.Syntax as TH
 
-nums :: Int -> State (IntMap Int, Int) [Int]
-nums n = _2 <<+= 1 >>= \i -> _1 . Lens.at n <<.= Just i >>= \case
-  Nothing -> (0:) <$> nums 0 ; Just i' -> let n = i - i' in (n:) <$> nums n
+inner :: VecSM.MVector s Int -> Int -> Int -> Int -> ST s Int
+inner vec 0 i n = pure n
+inner vec t i n = do
+  x <- VecSM.unsafeRead vec n
+  VecSM.unsafeWrite vec n i
+  inner vec (t - 1) (i + 1) (if x == 0 then 0 else i - x)
 
-run :: [Int] -> [Int]
-run xs = xs ++ evalState (nums (last xs))
-  (IntMap.fromList (zip (init xs) [0..]), length xs - 1)
+run :: Int -> [Int] -> Int
+run n xs = runST $ do
+  vec <- VecSM.new n
+  zipWithM_ (VecSM.unsafeWrite vec) (init xs) [1..]
+  inner vec (n - length xs) (length xs) (last xs)
 
 part1, part2 :: Int
 part1 = 2020
@@ -130,5 +147,5 @@ part2 = 30_000_000
 
 main = do
   input <- readFile (replaceExtension __FILE__ ".in")
-  print . (!! pred part2) . run . map read . splitOn "," . head $ lines input
+  print . run part2 . map read . splitOn "," . head $ lines input
 

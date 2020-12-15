@@ -83,6 +83,7 @@ import Control.Monad.Writer
 import Control.Monad.State
 import Control.Monad.RWS
 import Control.Monad.Except
+import Control.Monad.ST
 import qualified Control.Monad.Combinators as Comb
 import qualified Control.Monad.Combinators.Expr as Comb
 
@@ -106,6 +107,16 @@ import Data.Bimap (Bimap)
 import qualified Data.Bimap as Bimap
 import Data.Sequence (Seq((:<|), (:|>)))
 import qualified Data.Sequence as Seq
+import Data.Vector.Generic (Vector)
+import Data.Vector.Generic.Mutable (MVector)
+import qualified Data.Vector as VecB
+import qualified Data.Vector.Mutable as VecBM
+import qualified Data.Vector.Unboxed as VecU
+import qualified Data.Vector.Unboxed.Mutable as VecUM
+import qualified Data.Vector.Storable as VecS
+import qualified Data.Vector.Storable.Mutable as VecSM
+import qualified Data.Vector.Generic as Vec
+import qualified Data.Vector.Generic.Mutable as VecM
 import Data.Tree (Tree)
 import qualified Data.Tree as Tree
 import Data.PQueue.Prio.Min (MinPQueue)
