@@ -142,7 +142,7 @@ part2 departs tickets@((you@(length -> size), _):_) = do
     let valid n s = SBV.sElem n (map fromIntegral s)
     SBV.constrain $ SBV.sAnd (zipWith valid ns slots')
     SBV.constrain $ SBV.distinct ns
-  pure . product . map (you !!) . findIndices (`elem` departs) . flip mapMaybe [1..20] $
+  pure . product . map (you !!) . findIndices (`elem` departs) . flip mapMaybe [1..size] $
     \n -> (fromEnum :: Word8 -> Int) <$> SBV.getModelValue ("n" ++ show n) model
 
 main = do
