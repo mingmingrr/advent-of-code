@@ -132,7 +132,7 @@ import qualified Language.Haskell.TH as TH
 import qualified Language.Haskell.TH.Syntax as TH
 
 part1, part2 :: [Int] -> [([Int],[[Int]])] -> IO Int
-part1 departs tickets = pure . sum $ catMaybes
+part1 departs (_:tickets) = pure . sum $ catMaybes
   [ (t !!) <$> findIndex null s | (t, s) <- tickets ]
 part2 departs tickets@((you@(length -> size), _):_) = do
   let collapse = Set.toList . foldr1 Set.intersection . map Set.fromList
