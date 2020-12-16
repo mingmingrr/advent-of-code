@@ -53,6 +53,7 @@ executable advent
                      , newtype
                      , Chart
                      , Chart-cairo
+                     , monad-loops
 
                      , array
                      , bytestring

@@ -1,7 +1,8 @@
 {-# LANGUAGE CPP #-}
+{-# LANGUAGE BlockArguments #-}
+{-# LANGUAGE ParallelListComp #-}
 {-# LANGUAGE TupleSections #-}
 {-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE ExplicitForAll #-}
 {-# LANGUAGE QuasiQuotes #-}
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE DeriveFunctor #-}
@@ -15,7 +16,7 @@
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE TemplateHaskell #-}
 
-module Year2020.Day15 where
+module Year2020.Day16 where
 
 import Year2020.Util
 import Year2020.Data.Cyclic (Cyclic, Cyclic2)
@@ -43,6 +44,7 @@ import qualified Text.Megaparsec.Char as Par
 import qualified Text.Megaparsec.Char.Lexer as Lex
 
 import qualified Data.SBV as SBV
+import qualified Data.SBV.Internals as SBV
 import Data.String.Here
 import Data.Default
 import Data.Word
@@ -63,6 +65,7 @@ import Data.Functor.Identity
 import Data.Either
 import Data.Maybe
 import Data.List
+import Data.List.Extra
 import Data.List.Split
 import qualified Data.Conduit as Cond
 import Data.Conduit ((.|))
@@ -128,24 +131,27 @@ import qualified Data.Sequence as MaxPQ
 import qualified Language.Haskell.TH as TH
 import qualified Language.Haskell.TH.Syntax as TH
 
-inner :: VecSM.MVector s Int -> Int -> Int -> Int -> ST s Int
-inner vec 0 i n = pure n
-inner vec t i n = do
-  x <- VecSM.unsafeRead vec n
-  VecSM.unsafeWrite vec n i
-  inner vec (t - 1) (i + 1) (if x == 0 then 0 else i - x)
-
-run :: Int -> [Int] -> Int
-run n xs = runST $ do
-  vec <- VecSM.new n
-  zipWithM_ (VecSM.unsafeWrite vec) (init xs) [1..]
-  inner vec (n - length xs) (length xs) (last xs)
-
-part1, part2 :: Int
-part1 = 2020
-part2 = 30_000_000
+part1, part2 :: [Int] -> [([Int],[[Int]])] -> IO Int
+part1 departs tickets = pure . sum $ catMaybes
+  [ (t !!) <$> findIndex null s | (t, s) <- tickets ]
+part2 departs tickets@((you@(length -> size), _):_) = do
+  let collapse = Set.toList . foldr1 Set.intersection . map Set.fromList
+      slots' = map collapse . transpose . filter (all notNull) $ map snd tickets
+  model <- SBV.satWith SBV.z3 $ do
+    ns <- SBV.sWord8s $ map (\n -> "n" ++ show n) [1..size]
+    let valid n s = SBV.sElem n (map fromIntegral s)
+    SBV.constrain $ SBV.sAnd (zipWith valid ns slots')
+    SBV.constrain $ SBV.distinct ns
+  pure . product . map (you !!) . findIndices (`elem` departs) . flip mapMaybe [1..20] $
+    \n -> (fromEnum :: Word8 -> Int) <$> SBV.getModelValue ("n" ++ show n) model
 
 main = do
-  input <- getContents -- readFile (replaceExtension __FILE__ ".in")
-  print . run part1 . map read . splitOn "," . head $ lines input
+  input <- readFile (replaceExtension __FILE__ ".in")
+  let readInts = (^.. Lens.folded . Lens.decimal) . splitOneOf " -,"
+      [fields, [_,you], _:others] = map (map readInts) (paragraphs input)
+      valid n [a,b,c,d] = a <= n && n <= b || c <= n && n <= d
+      possible fields = map (\n -> findIndices (valid n) fields)
+      departs = findIndices (isPrefixOf "departure") (head (paragraphs input))
+      tickets = map ((,) <*> possible fields) (you:others)
+  print =<< part2 departs tickets
 

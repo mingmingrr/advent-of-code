@@ -1,4 +1,6 @@
 {-# LANGUAGE CPP #-}
+{-# LANGUAGE BlockArguments #-}
+{-# LANGUAGE ParallelListComp #-}
 {-# LANGUAGE TupleSections #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE QuasiQuotes #-}
@@ -42,6 +44,7 @@ import qualified Text.Megaparsec.Char as Par
 import qualified Text.Megaparsec.Char.Lexer as Lex
 
 import qualified Data.SBV as SBV
+import qualified Data.SBV.Internals as SBV
 import Data.String.Here
 import Data.Default
 import Data.Word
@@ -62,6 +65,7 @@ import Data.Functor.Identity
 import Data.Either
 import Data.Maybe
 import Data.List
+import Data.List.Extra
 import Data.List.Split
 import qualified Data.Conduit as Cond
 import Data.Conduit ((.|))
