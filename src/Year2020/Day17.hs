@@ -1,6 +1,7 @@
 {-# LANGUAGE CPP #-}
 {-# LANGUAGE BlockArguments #-}
 {-# LANGUAGE ParallelListComp #-}
+{-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE TupleSections #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE QuasiQuotes #-}
@@ -16,7 +17,7 @@
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE TemplateHaskell #-}
 
-module Year2020.DayX where
+module Year2020.Day17 where
 
 import Year2020.Util
 import Year2020.Data.Cyclic (Cyclic, Cyclic2)
@@ -136,7 +137,26 @@ import qualified Data.Sequence as MaxPQ
 import qualified Language.Haskell.TH as TH
 import qualified Language.Haskell.TH.Syntax as TH
 
+type Part1 = V3
+type Part2 = V4
+
+around :: forall f a n .
+  ( Lin.Finite f, KnownNat n, n ~ Lin.Size f
+  , Lens.Simple Lens.Each (f a) a
+  , Eq (f a), Num a, Num (f a) ) => [f a]
+around = filter (/= 0) . map (\x -> 0 & Lens.partsOf Lens.each .~ x) $
+  replicateM (fromInteger (TypeLits.natVal (Proxy :: Proxy n))) [-1,0,1]
+
+life :: Endo [Part2 Int]
+life = Endo $ \xs ->
+  let active = (`Set.member` Set.fromList xs)
+      filt x = ns == 3 || active x && ns == 3 where
+        ns = length (neighbors around [active] x)
+   in filter filt . nubOrd $ xs ++ (xs >>= neighbors around [])
+
 main = do
   input <- readFile (replaceExtension __FILE__ ".in")
-  print input
+  print . length . (!! 6) . iterate (appEndo life)
+    . map (flip (Lens.set _xy) 0 . fst)
+    . filter ((=='#') . snd) . labelGrid $ lines input
 

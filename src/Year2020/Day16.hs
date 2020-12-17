@@ -136,11 +136,11 @@ part1 departs (_:tickets) = pure . sum $ catMaybes
   [ (t !!) <$> findIndex null s | (t, s) <- tickets ]
 part2 departs tickets@((you@(length -> size), _):_) = do
   let collapse = Set.toList . foldr1 Set.intersection . map Set.fromList
-      slots' = map collapse . transpose . filter (all notNull) $ map snd tickets
+      slots = map collapse . transpose . filter (all notNull) $ map snd tickets
   model <- SBV.satWith SBV.z3 $ do
     ns <- SBV.sWord8s $ map (\n -> "n" ++ show n) [1..size]
     let valid n s = SBV.sElem n (map fromIntegral s)
-    SBV.constrain $ SBV.sAnd (zipWith valid ns slots')
+    SBV.constrain $ SBV.sAnd (zipWith valid ns slots)
     SBV.constrain $ SBV.distinct ns
   pure . product . map (you !!) . findIndices (`elem` departs) . flip mapMaybe [1..size] $
     \n -> (fromEnum :: Word8 -> Int) <$> SBV.getModelValue ("n" ++ show n) model

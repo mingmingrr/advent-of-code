@@ -1,3 +1,5 @@
+{-# OPTIONS_GHC -ddump-splices #-}
+
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE TupleSections #-}
 {-# LANGUAGE FlexibleInstances #-}
