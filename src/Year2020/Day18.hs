@@ -138,11 +138,12 @@ import qualified Language.Haskell.TH as TH
 import qualified Language.Haskell.TH.Syntax as TH
 
 expr :: ParserSimple Int
-expr = Comb.makeExprParser (Lex.decimal <|> Comb.between "(" ")" expr) part2
+expr = Comb.makeExprParser (Lex.decimal <|> Comb.between "(" ")" expr) $
+  part2 [Comb.InfixL (parserSimple "+" $> (+)), Comb.InfixL ("*" $> (*))]
 
-part1, part2 :: [[Comb.Operator ParserSimple Int]]
-part1 = [[Comb.InfixL (parserSimple "+" $> (+)), Comb.InfixL ("*" $> (*))]]
-part2 = [[Comb.InfixL (parserSimple "+" $> (+))], [Comb.InfixL ("*" $> (*))]]
+part1, part2 :: [Comb.Operator ParserSimple Int] -> [[Comb.Operator ParserSimple Int]]
+part1 = pure
+part2 = map pure
 
 main = do
   input <- readFile (replaceExtension __FILE__ ".in")

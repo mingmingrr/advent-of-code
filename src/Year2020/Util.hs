@@ -131,6 +131,9 @@ parserSimple = id
 parseError :: ParserSimple a -> String -> a
 parseError p = either (error . Par.errorBundlePretty) id . Par.parse p ""
 
+traceWith :: (a -> String) -> a -> a
+traceWith f x = trace (f x) x
+
 traceShowWith :: Show b => (a -> b) -> a -> a
 traceShowWith f x = traceShow (f x) x
 
