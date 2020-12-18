@@ -144,15 +144,15 @@ around :: forall f a n .
   ( Lin.Finite f, KnownNat n, n ~ Lin.Size f
   , Lens.Simple Lens.Each (f a) a
   , Eq (f a), Num a, Num (f a) ) => [f a]
-around = filter (/= 0) . map (\x -> 0 & Lens.partsOf Lens.each .~ x) $
+around = map (\x -> 0 & Lens.partsOf Lens.each .~ x) $
   replicateM (fromInteger (TypeLits.natVal (Proxy :: Proxy n))) [-1,0,1]
 
 life :: Endo [Part2 Int]
 life = Endo $ \xs ->
   let active = (`Set.member` Set.fromList xs)
-      filt x = ns == 3 || active x && ns == 3 where
+      filt x = ns == 3 || active x && ns == 4 where
         ns = length (neighbors around [active] x)
-   in filter filt . nubOrd $ xs ++ (xs >>= neighbors around [])
+   in filter filt . nubOrd $ xs >>= neighbors around []
 
 main = do
   input <- readFile (replaceExtension __FILE__ ".in")
