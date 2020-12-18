@@ -1,4 +1,5 @@
 {-# LANGUAGE CPP #-}
+{-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE BlockArguments #-}
 {-# LANGUAGE ParallelListComp #-}
 {-# LANGUAGE TupleSections #-}
@@ -136,34 +137,14 @@ import qualified Data.Sequence as MaxPQ
 import qualified Language.Haskell.TH as TH
 import qualified Language.Haskell.TH.Syntax as TH
 
-import System.IO
-import System.IO.Temp
-import System.Process
+expr :: ParserSimple Int
+expr = Comb.makeExprParser (Lex.decimal <|> Comb.between "(" ")" expr) part2
 
--- RANK 1 POGGERS
-
-header :: Int -> String
-header n = [i|
-{-# LANGUAGE NoImplicitPrelude #-}
-import qualified Prelude as P
-a + b = a P.+ b
-a * b = a P.* b
-infixl 1 +
-infixl ${n} *
-main = P.print (P.sum [
-|]
-
-part1, part2 :: Int
-part1 = 1
-part2 = 0
+part1, part2 :: [[Comb.Operator ParserSimple Int]]
+part1 = [[Comb.InfixL (parserSimple "+" $> (+)), Comb.InfixL ("*" $> (*))]]
+part2 = [[Comb.InfixL (parserSimple "+" $> (+))], [Comb.InfixL ("*" $> (*))]]
 
 main = do
   input <- readFile (replaceExtension __FILE__ ".in")
-  let (dir, name) = splitFileName __FILE__
-  withTempFile dir name $ \path handle -> do
-    hPutStrLn handle (header part2)
-    hPutStrLn handle . intercalate ",\n" . map (' ':) $ lines input
-    hPutStrLn handle " ])"
-    hClose handle
-    callProcess "runghc" [path]
+  print . sum . map (parseError expr . filter (not . isSpace)) $ lines input
 

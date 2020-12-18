@@ -123,7 +123,7 @@ readIntegral = read
 readInteger :: String -> Integer
 readInteger = read
 
-type ParserSimple a = Par.Parsec Void String a
+type ParserSimple = Par.Parsec Void String
 
 parserSimple :: ParserSimple a -> ParserSimple a
 parserSimple = id
