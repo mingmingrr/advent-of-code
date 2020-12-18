@@ -54,6 +54,7 @@ executable advent
                      , Chart
                      , Chart-cairo
                      , monad-loops
+                     , temporary
 
                      , array
                      , bytestring

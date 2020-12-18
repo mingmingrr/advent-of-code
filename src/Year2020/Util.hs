@@ -94,8 +94,7 @@ inBounds low high pos
   = getAll (foldMap (All . (>= 0)) (pos - low))
  && getAll (foldMap (All . (>= 0)) (high - pos))
 
-neighbors :: (Foldable f, Ord a, Num a, Num (f a))
-          => [f a] -> [f a -> Bool] -> f a -> [f a]
+neighbors :: Num a => [a] -> [a -> Bool] -> a -> [a]
 neighbors edges checkers pos =
   [pos' | diff <- edges, let pos' = pos + diff, all ($ pos') checkers]
 
