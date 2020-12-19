@@ -139,28 +139,24 @@ import qualified Data.Sequence as MaxPQ
 import qualified Language.Haskell.TH as TH
 import qualified Language.Haskell.TH.Syntax as TH
 
-type Rule = Either [[Int]] Char
+type Rule = String -> [String]
 
-rule :: ParserSimple (Int, Rule)
-rule = parserSimple $ do
+rule :: IntMap Rule -> ParserSimple (IntMap Rule)
+rule dict = fmap IntMap.fromList . (`Comb.sepEndBy` Par.eol) $ do
   n <- Lex.decimal <* ": "
-  r <- Comb.eitherP
-    (some (Lex.decimal <* Par.space) `Comb.sepBy1` "| ")
-    ("\"" *> Par.anySingle <* "\"")
-  Par.eof
+  let ph = foldl1 (>=>) <$> some ((dict IntMap.!) <$> Lex.decimal <* Par.hspace)
+      ch c = \case [] -> [] ; x:xs -> [xs | c == x]
+  r <- "\"" *> fmap ch Par.anySingle <* "\""
+   <|> (concat .) . sequence <$> Comb.sepBy1 ph "| "
   return (n, r)
 
-part1, part2 :: IntMap Rule
-part1 = mempty
-part2 = IntMap.fromList [(8, Left [[42],[42,8]]), (11, Left [[42,31],[42,11,31]])]
-
 matching :: [String] -> [String] -> [String]
-matching rules = filter (any null . match dict (dict IntMap.! 0)) where
-  dict = part2 <> IntMap.fromList (map (parseError rule) rules)
+matching rules = filter (any null . (dict IntMap.! 0)) where
+  dict = parseError (rule dict <* Par.eof) (unlines rules <> part2)
 
-match :: IntMap Rule -> Rule -> String -> [String]
-match dict (Right c) ys = [tail ys | notNull ys && c == head ys]
-match dict (Left xs) ys = foldl (\s x -> match dict (dict IntMap.! x) =<< s) [ys] =<< xs
+part1, part2 :: String
+part1 = ""
+part2 = "8: 42 | 42 8\n11: 42 31 | 42 11 31"
 
 main = do
   input <- readFile (replaceExtension __FILE__ ".in")
