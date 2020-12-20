@@ -156,11 +156,12 @@ place' :: Int -> Map Int Tile -> Map (Int, Int) (Int, Tile)
 place' size tiles placed _ _ | Map.null tiles = pure . transpose
   .  map (map snd) . groupOn (fst . fst) $ Map.toList placed
 place' size tiles placed x y = do
+  let xp = snd (placed Map.! (x - 1, y)) ?? (All, TakeLast 1)
+      yp = snd (placed Map.! (x, y - 1)) ?? (TakeLast 1, All)
   (num, tile') <- Map.toList tiles
   tile <- transforms tile'
-  let check x' y' f = tile ?? f (All, Take 1)
-        == snd (placed Map.! (x - x', y - y')) ?? f (All, TakeLast 1)
-  guard $ (x == 1 || check 1 0 id) && (y == 1 || check 0 1 swap)
+  guard $ (x == 1 || tile ?? (All, Take 1) == xp)
+       && (y == 1 || tile ?? (Take 1, All) == yp)
   let (x', y') = ((+ x) *** (+ 1)) (divMod y size)
   place' size (Map.delete num tiles) (Map.insert (x, y) (num, tile) placed) x' y'
 
