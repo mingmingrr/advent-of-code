@@ -147,15 +147,11 @@ makeTile (x:xs) = (n, fromLists (map (map (\case '#' -> 1 ; _ -> 0)) xs))
 transforms :: Tile -> [Tile]
 transforms m = take 8 . scanl (&) m $ cycle [tr, flipud]
 
-place :: [(Int, Tile)] -> [[[(Int, Tile)]]]
-place tiles = place' size (Map.fromList tiles) mempty 1 1 where
-  size = round . sqrt . fromIntegral $ length tiles
-
-place' :: Int -> Map Int Tile -> Map (Int, Int) (Int, Tile)
+place :: Int -> Map Int Tile -> Map (Int, Int) (Int, Tile)
        -> Int -> Int -> [[[(Int, Tile)]]]
-place' size tiles placed _ _ | Map.null tiles = pure . transpose
+place size tiles placed _ _ | Map.null tiles = pure . transpose
   .  map (map snd) . groupOn (fst . fst) $ Map.toList placed
-place' size tiles placed x y = do
+place size tiles placed x y = do
   let xp = snd (placed Map.! (x - 1, y)) ?? (All, TakeLast 1)
       yp = snd (placed Map.! (x, y - 1)) ?? (TakeLast 1, All)
   (num, tile') <- Map.toList tiles
@@ -163,7 +159,7 @@ place' size tiles placed x y = do
   guard $ (x == 1 || tile ?? (All, Take 1) == xp)
        && (y == 1 || tile ?? (Take 1, All) == yp)
   let (x', y') = ((+ x) *** (+ 1)) (divMod y size)
-  place' size (Map.delete num tiles) (Map.insert (x, y) (num, tile) placed) x' y'
+  place size (Map.delete num tiles) (Map.insert (x, y) (num, tile) placed) x' y'
 
 part1, part2 :: [[(Int, Tile)]] -> Int
 part1 xs = product . map (fst . ($ xs)) $ (.) <$> [head, last] <*> [head, last]
@@ -180,5 +176,6 @@ part2 = fromIntegral . minimum . checks . transforms . fromBlocks
 main = do
   input <- readFile (replaceExtension __FILE__ ".in")
   let tiles = map makeTile . filter notNull $ paragraphs input
-  print . part2 . head $ place tiles
+      size = round . sqrt . fromIntegral $ length tiles
+  print . part2 . head $ place size (Map.fromList tiles) mempty 1 1
 
