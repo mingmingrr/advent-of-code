@@ -16,7 +16,7 @@
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE TemplateHaskell #-}
 
-module Year2020.Day21 where
+module Year2020.Day22 where
 
 import Year2020.Util
 import Year2020.Data.Cyclic (Cyclic, Cyclic2)
@@ -70,7 +70,7 @@ import Data.Functor.Identity
 import Data.Either
 import Data.Maybe
 import Data.List
-import Data.List.Extra hiding (splitOn)
+import Data.List.Extra
 import Data.List.Split
 import qualified Data.Conduit as Cond
 import Data.Conduit ((.|))
@@ -136,22 +136,28 @@ import qualified Data.Sequence as MaxPQ
 import qualified Language.Haskell.TH as TH
 import qualified Language.Haskell.TH.Syntax as TH
 
-parse :: String -> ([String], [String])
-parse xs = (words ys, tail $ splitOneOf' ", )" zs) where
-  [ys, zs] = splitOn "(" xs
+type Deck = Seq Int
 
-allergens :: [([String], [String])] -> Map String (Set String)
-allergens xs = Map.fromList [(z, check z) | z <- nub (concat zs) ] where
-  check n = foldr1 Set.intersection [Set.fromList a | (a,b) <- xs, n `elem` b]
-  (ys, zs) = unzip xs
+part1, part2 :: Bool
+part1 = False
+part2 = True
 
-part1, part2 :: [([String], [String])] -> String
-part1 xs = show . length . filter (`Set.notMember` candidates) $ fst =<< xs
-  where candidates = Set.unions . Map.elems $ allergens xs
-part2 = intercalate "," . head . filter ((==) =<< nub)
-  . mapM Set.toList . Map.elems . allergens
+play :: Set (Deck, Deck) -> Deck -> Deck -> Either Deck Deck
+play seen xs Seq.Empty = Left xs
+play seen Seq.Empty ys = Right ys
+play seen xs ys | Set.member (xs, ys) seen = Left xs
+play seen xs@(x:<|xt) ys@(y:<|yt) = if p1win
+  then play seen' (xt :|> x :|> y) yt
+  else play seen' xt (yt :|> y :|> x)
+  where p1win = if part2 && Seq.length xt >= x && Seq.length yt >= y
+          then isLeft $ play mempty (Seq.take x xt) (Seq.take y yt)
+          else x > y
+        seen' = Set.insert (xs, ys) seen
 
 main = do
   input <- readFile (replaceExtension __FILE__ ".in")
-  putStrLn . part2 . map parse $ lines input
+  print . sum . zipWith (*) [1..] . reverse . toList
+    . either id id . uncurry (play mempty) . tuplify
+    . map (Seq.fromList . map (read :: String -> Int) . tail)
+    $ paragraphs input
 

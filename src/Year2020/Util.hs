@@ -1,5 +1,6 @@
 {-# OPTIONS_GHC -ddump-splices #-}
 
+{-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE TupleSections #-}
 {-# LANGUAGE FlexibleInstances #-}
@@ -24,6 +25,8 @@ import Text.Megaparsec as Par
 import Text.Megaparsec.Char as Par
 
 import Data.String.Here
+import Data.Data
+import Data.Generics
 import Data.String
 import Data.Maybe
 import Data.Either
@@ -217,4 +220,11 @@ directions = runMap' $ do
 clockWise, counterClockWise :: V2 Int -> V2 Int
 clockWise = negate . perp
 counterClockWise = perp
+
+using :: (Data a, Typeable a) => String -> TH.Q a -> TH.Q a
+using mod = (>>= everywhereM (mkM (resolve mod))) where
+  resolve mod = \case
+    exp@(TH.UnboundVarE name) -> maybe exp TH.VarE <$>
+      TH.lookupValueName (mod <> "." <> TH.nameBase name)
+    exp -> pure exp
 
