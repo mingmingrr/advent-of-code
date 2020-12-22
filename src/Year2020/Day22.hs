@@ -142,22 +142,23 @@ part1, part2 :: Bool
 part1 = False
 part2 = True
 
-play :: Set (Deck, Deck) -> Deck -> Deck -> Either Deck Deck
-play seen xs Seq.Empty = Left xs
-play seen Seq.Empty ys = Right ys
-play seen xs ys | Set.member (xs, ys) seen = Left xs
-play seen xs@(x:<|xt) ys@(y:<|yt) = if p1win
-  then play seen' (xt :|> x :|> y) yt
-  else play seen' xt (yt :|> y :|> x)
-  where p1win = if part2 && Seq.length xt >= x && Seq.length yt >= y
-          then isLeft $ play mempty (Seq.take x xt) (Seq.take y yt)
-          else x > y
-        seen' = Set.insert (xs, ys) seen
+tryTake :: Int -> Seq a -> Maybe (Seq a)
+tryTake n xs = guard (Seq.length xs >= n) $> Seq.take n xs
+
+play :: Deck -> Deck -> State (Set ([Int],[Int])) (Bool,Deck)
+play xs Seq.Empty = pure (True, xs)
+play Seq.Empty ys = pure (False, ys)
+play xs@(x:<|xt) ys@(y:<|yt) = Lens.contains (toList xs, toList ys) <<.= True
+  >>= \case True -> pure (True, xs)
+            False -> uncurry play . bool (xt, yt:|>y:|>x) (xt:|>x:|>y, yt) $
+                       case (tryTake x xt, tryTake y yt) of
+                         (Just x, Just y) -> fst (evalState (play x y) mempty)
+                         (_, _) -> x > y
 
 main = do
   input <- readFile (replaceExtension __FILE__ ".in")
-  print . sum . zipWith (*) [1..] . reverse . toList
-    . either id id . uncurry (play mempty) . tuplify
+  print . sum . zipWith (*) [1..] . reverse . toList . snd
+    . (\(xs, ys) -> evalState (play xs ys) mempty) . tuplify
     . map (Seq.fromList . map (read :: String -> Int) . tail)
     $ paragraphs input
 
