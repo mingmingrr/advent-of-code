@@ -145,20 +145,21 @@ part2 = True
 tryTake :: Int -> Seq a -> Maybe (Seq a)
 tryTake n xs = guard (Seq.length xs >= n) $> Seq.take n xs
 
-play :: Deck -> Deck -> State (Set ([Int],[Int])) (Bool,Deck)
+play :: Deck -> Deck -> State (Set [Int]) (Bool, Deck)
 play xs Seq.Empty = pure (True, xs)
 play Seq.Empty ys = pure (False, ys)
-play xs@(x:<|xt) ys@(y:<|yt) = Lens.contains (toList xs, toList ys) <<.= True
-  >>= \case True -> pure (True, xs)
-            False -> uncurry play . bool (xt, yt:|>y:|>x) (xt:|>x:|>y, yt) $
-                       case (tryTake x xt, tryTake y yt) of
-                         (Just x, Just y) -> fst (evalState (play x y) mempty)
-                         (_, _) -> x > y
+play xs@(x:<|xt) ys@(y:<|yt) =
+  Lens.contains (toList xs ++ [0] ++ toList ys) <<.= True >>= \case
+    True -> pure (True, xs)
+    False -> uncurry play . bool (xt, yt:|>y:|>x) (xt:|>x:|>y, yt) $
+      case (part2, tryTake x xt, tryTake y yt) of
+        (True, Just x, Just y) -> fst (evalState (play x y) mempty)
+        (_, _, _) -> x > y
 
 main = do
   input <- readFile (replaceExtension __FILE__ ".in")
   print . sum . zipWith (*) [1..] . reverse . toList . snd
-    . (\(xs, ys) -> evalState (play xs ys) mempty) . tuplify
+    . flip evalState mempty . uncurry play . tuplify
     . map (Seq.fromList . map (read :: String -> Int) . tail)
     $ paragraphs input
 
