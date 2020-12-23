@@ -83,6 +83,7 @@ import Control.Arrow
 import Control.Concurrent
 import Control.Lens (_1, _2, _3, _4, _5, _6, _7, _8)
 import qualified Control.Lens as Lens
+import qualified Control.Lens as L
 import qualified Numeric.Lens as Lens
 import Control.Lens.Operators
 import Control.Applicative
@@ -146,43 +147,24 @@ finalize :: [Int] -> Int
   part1 = (100, 9, read . concatMap show . take 8 :: [Int] -> Int)
   part2 = (10000000, 1000000, product . take 2)
 
-runner :: Int -> (Int, Bimap [Int] Int) -> [Int]
-runner 0 (_, bmap) = unfoldr next (bmap Bimap.!> 1) where
-  next num = Just . swap . lookupNext num $ Bimap.toMap bmap
-runner i (num, bmap)
-  | i .&. 0xfffff == 0 = next . Bimap.fromList
-    . zip (map pure [0..]) . map snd $ Bimap.toAscList bmap
-  | i .&. 0xfff == 0 = traceShow (i, num) (next bmap)
-  | otherwise = next bmap
-  where next bmap = runner (i - 1) (appEndo iter (num, bmap))
+runner :: Int -> (Int, Seq Int) -> [Int]
+runner 0 (_, imap) = tail $ iterate (Seq.index imap) 0
+runner i (num, imap)
+  | i .&. 0xffff == 0 = traceShow (i, num) (next imap)
+  | otherwise = next imap
+  where next imap = runner (i - 1) (appEndo iter (num, imap))
 
-iter :: Endo (Int, Bimap [Int] Int)
-iter = Endo $ \(num, bmap) ->
-  let nums = uncurry (++) . Lens.over Lens.both MapS.elems
-        . swap $ MapS.split (bmap Bimap.!> num) (Bimap.toMap bmap)
-      next = (bmap Bimap.!>) . head . filter (`notElem` (num : take 3 nums))
-        $ [num-1,num-2..1] ++ [count,count-1..num]
-      indices = iterate (`betweenL` fst (lookupNext next (Bimap.toMap bmap))) next
-      bmap' = foldr ($) bmap . take 3 $ zipWith Bimap.insert (tail indices) nums
-      (_, num') = lookupNext (bmap' Bimap.!> num) (Bimap.toMap bmap')
-   in (num', bmap')
-
-lookupNext :: Ord k => k -> Map k a -> (k, a)
-lookupNext x m = fromMaybe (MapS.findMin m) (MapS.lookupGT x m)
-
--- quickCheck $ \ (NonEmptyList xs) (NonEmptyList ys) ->
---   xs /= ys ==> let zs = betweenL xs ys in xs < zs && zs < ys
-betweenL :: [Int] -> [Int] -> [Int]
-betweenL [] (y:ys) = (y - 1) : ys
-betweenL (x:xs) (y:ys)
-  | x == y = x : betweenL xs ys
-  | x + 1 < y = (x + 1) : xs
-  | null xs = [x, 0]
-  | otherwise = x : Lens.over Lens._last (+ 1) xs
+iter :: Endo (Int, Seq Int)
+iter = Endo $ \(num, imap) ->
+  let nums@[x,y,z] = take 3 . tail $ iterate (Seq.index imap) num
+      nexts n = [n - 1, n - 2 .. 0] ++ [count - 1, count - 2 ..]
+      next = head [n | n <- nexts num, n `notElem` (num:nums)]
+      p1 = Seq.index imap z
+   in (p1, Seq.update num p1 . Seq.update next x . Seq.update z (Seq.index imap next) $ imap)
 
 main = do
   input <- readFile (replaceExtension __FILE__ ".in")
-  print . finalize . runner iterations
-    . (head &&& Bimap.fromList . zip (map pure [0..]))
-    $ map (read . pure) (filter isDigit input) ++ [10..count]
+  let nums@(num:_) = map (pred . read . pure) (filter isDigit input) ++ [9..count-1]
+  print . finalize . map succ . runner iterations
+    $ (num, Seq.fromList . map snd . sort $ zip nums (tail nums ++ [num]))
 
