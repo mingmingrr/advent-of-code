@@ -147,24 +147,30 @@ finalize :: [Int] -> Int
   part1 = (100, 9, read . concatMap show . take 8 :: [Int] -> Int)
   part2 = (10000000, 1000000, product . take 2)
 
-runner :: Int -> (Int, Seq Int) -> [Int]
-runner 0 (_, imap) = tail $ iterate (Seq.index imap) 0
-runner i (num, imap)
-  | i .&. 0xffff == 0 = traceShow (i, num) (next imap)
-  | otherwise = next imap
-  where next imap = runner (i - 1) (appEndo iter (num, imap))
+runner :: Int -> (Int, [Int]) -> VecS.Vector Int
+runner i (n, xs) = runST $ do
+  vec <- VecS.unsafeThaw (VecS.fromList xs)
+  iter i n vec
+  VecS.unsafeFreeze vec
 
-iter :: Endo (Int, Seq Int)
-iter = Endo $ \(num, imap) ->
-  let nums@[x,y,z] = take 3 . tail $ iterate (Seq.index imap) num
-      nexts n = [n - 1, n - 2 .. 0] ++ [count - 1, count - 2 ..]
-      next = head [n | n <- nexts num, n `notElem` (num:nums)]
-      p1 = Seq.index imap z
-   in (p1, Seq.update num p1 . Seq.update next x . Seq.update z (Seq.index imap next) $ imap)
+iter :: Int -> Int -> VecSM.MVector s Int -> ST s Int
+iter 0 num vec = pure num
+iter i num vec = do
+  x <- VecSM.unsafeRead vec num
+  y <- VecSM.unsafeRead vec x
+  z <- VecSM.unsafeRead vec y
+  p <- VecSM.unsafeRead vec z
+  let nexts n = [n - 1, n - 2 .. 0] ++ [count - 1, count - 2 ..]
+      next = head [n | n <- nexts num, n `notElem` [x, y, z]]
+  n <- VecSM.unsafeRead vec next
+  VecSM.unsafeWrite vec num p
+  VecSM.unsafeWrite vec next x
+  VecSM.unsafeWrite vec z n
+  iter (i - 1) p vec
 
 main = do
   input <- readFile (replaceExtension __FILE__ ".in")
   let nums@(num:_) = map (pred . read . pure) (filter isDigit input) ++ [9..count-1]
-  print . finalize . map succ . runner iterations
-    $ (num, Seq.fromList . map snd . sort $ zip nums (tail nums ++ [num]))
+  print . finalize . map succ . tail . flip iterate 0 . (VecS.!) . runner iterations
+    $ (num, map snd . sort $ zip nums (tail nums ++ [num]))
 
