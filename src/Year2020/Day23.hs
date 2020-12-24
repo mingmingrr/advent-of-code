@@ -156,16 +156,12 @@ runner i (n, xs) = runST $ do
 iter :: Int -> Int -> VecSM.MVector s Int -> ST s Int
 iter 0 num vec = pure num
 iter i num vec = do
-  x <- VecSM.unsafeRead vec num
-  y <- VecSM.unsafeRead vec x
-  z <- VecSM.unsafeRead vec y
-  p <- VecSM.unsafeRead vec z
-  let nexts n = [n - 1, n - 2 .. 0] ++ [count - 1, count - 2 ..]
+  vec' <- VecS.unsafeFreeze vec
+  let (_:x:y:z:p:_) = iterate (vec' VecS.!) num
+      nexts n = [n - 1, n - 2 .. 0] ++ [count - 1, count - 2 ..]
       next = head [n | n <- nexts num, n `notElem` [x, y, z]]
   n <- VecSM.unsafeRead vec next
-  VecSM.unsafeWrite vec num p
-  VecSM.unsafeWrite vec next x
-  VecSM.unsafeWrite vec z n
+  zipWithM_ (VecSM.unsafeWrite vec) [num, next, z] [p, x, n]
   iter (i - 1) p vec
 
 main = do
