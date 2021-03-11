@@ -1,5 +1,3 @@
-{-# OPTIONS_GHC -ddump-splices #-}
-
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE TupleSections #-}
@@ -17,42 +15,29 @@ import Debug.Trace
 import Numeric
 
 import Linear.V2
-import qualified Linear.Matrix as Mat
 
 import Text.Pretty.Simple
-import Text.Read (readMaybe)
 import Text.Megaparsec as Par
 import Text.Megaparsec.Char as Par
 
 import Data.String.Here
 import Data.Data
 import Data.Generics
-import Data.String
 import Data.Maybe
-import Data.Either
 import Data.Ord
-import Data.Char
 import Data.Void
 import Data.Monoid
 import Data.List
 import Data.List.Split
 
-import Data.PQueue.Prio.Min (MinPQueue)
 import qualified Data.PQueue.Prio.Min as Queue
-import Data.Bimap (Bimap)
 import qualified Data.Bimap as Bimap
-import Data.Tree (Tree)
 import qualified Data.Tree as Tree
-import Data.Graph.Inductive (Graph)
 import qualified Data.Graph.Inductive as Graph
-import Data.Set (Set)
 import qualified Data.Set as Set
-import Data.Map.Syntax
-import Data.Map (Map)
 import qualified Data.Map as Map
-import Data.Sequence (Seq)
-import qualified Data.Sequence as Seq
 import qualified Data.Text.Lazy as TextL
+import Data.Map.Syntax
 
 import Control.Monad
 import qualified Control.Lens as Lens
@@ -175,7 +160,7 @@ pIdentifier = pIdentifierWith Par.letterChar Par.alphaNumChar
 tuplify :: Lens.Simple Lens.Each b a => [a] -> b
 tuplify xs = undefined & Lens.partsOf Lens.each .~ xs
 
-runMap' :: Ord k => MapSyntaxM k v a -> Map k v
+runMap' :: Ord k => MapSyntaxM k v a -> Map.Map k v
 runMap' = either (error "invalid MapSyntax") id . runMap
 
 between :: Ord a => a -> a -> a -> Bool
@@ -193,13 +178,14 @@ pShow' = TextL.unpack . pShow
 nubSet :: Ord a => [a] -> [a]
 nubSet = Set.toList . Set.fromList
 
-fromEdges :: (Graph gr, Ord a) => [(a, a, b)] -> (Bimap Int a, gr a b)
+fromEdges :: (Graph.Graph gr, Ord a)
+   => [(a, a, b)] -> (Bimap.Bimap Int a, gr a b)
 fromEdges edges = (bimap, Graph.mkGraph (Bimap.assocs bimap) edges')
   where bimap = Bimap.fromList . zip [0..] . nubSet $
           edges ^.. Lens.folded . (Lens._1 <> Lens._2)
         edges' = [(bimap Bimap.!> a, bimap Bimap.!> b, c) | (a,b,c) <- edges]
 
-xdffWith' :: Graph gr
+xdffWith' :: Graph.Graph gr
   => Graph.CFun a b [Graph.Node] -> Graph.CFun a b c
   -> [Graph.Node] -> gr a b -> [Tree.Tree c]
 xdffWith' _ _ [] _ = []
@@ -210,7 +196,7 @@ xdffWith' d f (v:vs) g = case Graph.match v g of
     where ts = xdffWith' d f (d c) g
           ts' = xdffWith' d f vs g
 
-directions :: Map Char (V2 Int)
+directions :: Map.Map Char (V2 Int)
 directions = runMap' $ do
   'N' ## V2 0 1
   'S' ## V2 0 (-1)
