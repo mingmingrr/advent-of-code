@@ -29,7 +29,7 @@ iter (n, f) m = if m == m' then m' else iter (n, f) m' where
     'L' -> if around f m (V2 x y) == 0 then '#' else 'L'
     '.' -> '.'
 
-part1 :: (Int, Look)
+part1, part2 :: (Int, Look)
 part1 = (4, const head)
 part2 = (5, \m -> head . dropWhile (check m '.'))
 

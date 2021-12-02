@@ -196,12 +196,27 @@ xdffWith' d f (v:vs) g = case Graph.match v g of
     where ts = xdffWith' d f (d c) g
           ts' = xdffWith' d f vs g
 
-directions :: Map.Map Char (V2 Int)
-directions = runMap' $ do
+compass :: Map.Map Char (V2 Int)
+compass = runMap' $ do
   'N' ## V2 0 1
   'S' ## V2 0 (-1)
   'E' ## V2 1 0
   'W' ## V2 (-1) 0
+
+directions :: Map.Map String (V2 Int)
+directions = runMap' $ do
+  "U" ## V2 0 1
+  "D" ## V2 0 (-1)
+  "L" ## V2 1 0
+  "R" ## V2 (-1) 0
+  "N" ## V2 0 1
+  "S" ## V2 0 (-1)
+  "E" ## V2 1 0
+  "W" ## V2 (-1) 0
+  "NE" ## V2 1 1
+  "SE" ## V2 1 (-1)
+  "NW" ## V2 1 1
+  "SW" ## V2 (-1) (-1)
 
 clockWise, counterClockWise :: V2 Int -> V2 Int
 clockWise = negate . perp

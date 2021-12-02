@@ -57,7 +57,7 @@ executable advent
                      , temporary
                      , optparse-applicative
                      , syb
-                     , list-tries
+                     -- , list-tries
 
                      , array
                      , bytestring
