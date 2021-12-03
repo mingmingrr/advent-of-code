@@ -16,7 +16,7 @@
 
 module Year2020.Day7 where
 
-import Year2020.Util
+import Util
 
 import qualified Text.Megaparsec as Par
 import qualified Text.Megaparsec.Char as Par

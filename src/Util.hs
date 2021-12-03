@@ -8,7 +8,7 @@
 {-# LANGUAGE FunctionalDependencies #-}
 {-# LANGUAGE TypeFamilies #-}
 
-module Year2020.Util where
+module Util where
 
 import Debug.Trace
 
@@ -27,6 +27,7 @@ import Data.Maybe
 import Data.Ord
 import Data.Void
 import Data.Monoid
+import Data.Tuple
 import Data.List
 import Data.List.Split
 
@@ -91,6 +92,9 @@ manhattan x y = getSum . foldMap Sum . abs $ x - y
 
 counter :: (Ord a, Num b) => [a] -> Map.Map a b
 counter = Map.fromListWith (+) . map (, 1)
+
+common :: (Ord a, Num b, Ord b) => [a] -> [(a, b)]
+common = sortOn (\(a, b) -> (Down b, a)) . Map.toList . counter
 
 class Variadic a r t | t -> r where
   liftVariadic :: ([a] -> r) -> t

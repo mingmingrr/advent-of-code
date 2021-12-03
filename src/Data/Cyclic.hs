@@ -2,7 +2,7 @@
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE DeriveFunctor #-}
 
-module Year2020.Data.Cyclic where
+module Data.Cyclic where
 
 import Prelude hiding (length)
 

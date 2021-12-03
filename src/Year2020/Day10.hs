@@ -2,7 +2,7 @@
 
 module Year2020.Day10 where
 
-import Year2020.Util
+import Util
 
 import Data.List
 

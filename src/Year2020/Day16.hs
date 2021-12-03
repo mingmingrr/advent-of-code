@@ -3,7 +3,7 @@
 
 module Year2020.Day16 where
 
-import Year2020.Util
+import Util
 
 import qualified Data.SBV as SBV
 import Data.Word

@@ -3,7 +3,7 @@
 
 module Year2020.Day13 where
 
-import Year2020.Util
+import Util
 
 import Math.NumberTheory.Moduli
 

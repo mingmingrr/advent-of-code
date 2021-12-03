@@ -3,7 +3,7 @@
 {-# LANGUAGE DeriveFunctor #-}
 {-# LANGUAGE AllowAmbiguousTypes #-}
 
-module Year2020.Data.Grid where
+module Data.Grid where
 
 import Prelude hiding (length)
 

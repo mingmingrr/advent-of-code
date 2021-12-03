@@ -7,7 +7,7 @@
 
 module Year2020.Day8 where
 
-import Year2020.Util
+import Util
 
 import GHC.Generics
 

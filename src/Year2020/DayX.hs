@@ -18,10 +18,10 @@
 
 module Year2020.DayX where
 
-import Year2020.Util
-import Year2020.Data.Cyclic (Cyclic, Cyclic2)
+import Util
+import Data.Cyclic (Cyclic, Cyclic2)
 import qualified Year2020.Data.Cyclic as Cyclic
-import Year2020.Data.Grid (Grid)
+import Data.Grid (Grid)
 import qualified Year2020.Data.Grid as Grid
 
 import Numeric

@@ -4,7 +4,7 @@
 
 module Year2020.Day17 where
 
-import Year2020.Util
+import Util
 
 import GHC.TypeLits as TypeLits
 

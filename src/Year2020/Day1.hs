@@ -2,7 +2,7 @@
 
 module Year2020.Day1 where
 
-import Year2020.Util
+import Util
 
 import Text.Pretty.Simple
 

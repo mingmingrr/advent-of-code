@@ -2,7 +2,7 @@
 
 module Year2020.Day2 where
 
-import Year2020.Util
+import Util
 
 import Data.Bits
 import Data.Maybe

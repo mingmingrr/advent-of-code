@@ -3,8 +3,8 @@
 
 module Year2020.Day11 where
 
-import Year2020.Util
-import Year2020.Data.Grid (Grid)
+import Util
+import Data.Grid (Grid)
 import qualified Year2020.Data.Grid as Grid
 
 import Linear.V2

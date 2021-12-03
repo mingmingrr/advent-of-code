@@ -3,7 +3,7 @@
 
 module Year2020.Day18 where
 
-import Year2020.Util
+import Util
 
 import qualified Text.Megaparsec.Char.Lexer as Lex
 

@@ -3,7 +3,7 @@
 
 module Year2020.Day22 where
 
-import Year2020.Util
+import Util
 
 import Data.Bool
 import Data.Foldable

@@ -5,7 +5,7 @@
 
 module Year2020.Day12 where
 
-import Year2020.Util
+import Util
 
 import Linear.V2
 

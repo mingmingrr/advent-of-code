@@ -2,7 +2,7 @@
 
 module Year2020.Day4 where
 
-import Year2020.Util
+import Util
 
 import Text.Regex.PCRE
 import Text.Read (readMaybe)
