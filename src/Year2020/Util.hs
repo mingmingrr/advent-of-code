@@ -229,3 +229,7 @@ using mod = (>>= everywhereM (mkM (resolve mod))) where
       TH.lookupValueName (mod <> "." <> TH.nameBase name)
     exp -> pure exp
 
+(??) :: Maybe a -> a -> a
+(??) = flip fromMaybe
+infixl 9 ??
+
