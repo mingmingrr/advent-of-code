@@ -16,16 +16,17 @@
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE TemplateHaskell #-}
 
-module Year2020.DayX where
+module Year2021.DayX where
 
 import Util
 import Data.Cyclic (Cyclic, Cyclic2)
-import qualified Year2020.Data.Cyclic as Cyclic
+import qualified Data.Cyclic as Cyclic
 import Data.Grid (Grid)
-import qualified Year2020.Data.Grid as Grid
+import qualified Data.Grid as Grid
 
 import Numeric
 import Numeric.Bool
+import Numeric.Char
 
 import GHC.Generics
 import GHC.TypeLits as TypeLits

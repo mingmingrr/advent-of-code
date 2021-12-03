@@ -5,7 +5,7 @@ module Year2020.Day11 where
 
 import Util
 import Data.Grid (Grid)
-import qualified Year2020.Data.Grid as Grid
+import qualified Data.Grid as Grid
 
 import Linear.V2
 

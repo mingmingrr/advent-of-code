@@ -115,6 +115,9 @@ readIntegral = read
 readInteger :: String -> Integer
 readInteger = read
 
+readBase :: (Num a, Integral b) => a -> [b] -> a
+readBase b = foldl (\n x -> n * b + fromIntegral x) 0
+
 type ParserSimple = Par.Parsec Void String
 
 parserSimple :: ParserSimple a -> ParserSimple a
