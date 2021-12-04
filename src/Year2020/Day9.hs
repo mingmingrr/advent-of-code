@@ -1,18 +1,5 @@
 {-# LANGUAGE CPP #-}
-{-# LANGUAGE TupleSections #-}
-{-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE QuasiQuotes #-}
-{-# LANGUAGE LambdaCase #-}
-{-# LANGUAGE DeriveFunctor #-}
-{-# LANGUAGE DeriveFoldable #-}
-{-# LANGUAGE GeneralisedNewtypeDeriving #-}
-{-# LANGUAGE PartialTypeSignatures #-}
-{-# LANGUAGE NumDecimals #-}
-{-# LANGUAGE BinaryLiterals #-}
-{-# LANGUAGE NumericUnderscores #-}
 {-# LANGUAGE ViewPatterns #-}
-{-# LANGUAGE RankNTypes #-}
-{-# LANGUAGE TemplateHaskell #-}
 
 module Year2020.Day9 where
 
@@ -21,6 +8,7 @@ import Data.Semigroup
 import Data.List
 
 import Control.Arrow
+import Control.Lens (_1, _2, _3)
 import qualified Control.Lens as Lens
 import Control.Lens.Operators
 
