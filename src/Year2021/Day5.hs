@@ -14,8 +14,7 @@ part1 = False
 part2 = True
 
 main = readFile (replaceExtension __FILE__ ".in") >>= \input ->
-  print . Map.size . Map.filter (> 1) $ counter
-    [ V2 (a + n * signum (c - a)) (b + n * signum (d - b))
-    | [[a,b],[c,d]] <- map (sort . chunksOf 2 . readOnlyNums) (lines input)
-    , part2 || a == c || b == d, n <- [0..max (c - a) (d - b)] ]
+  print . Map.size . Map.filter (> 1) $ counter [ x + fromIntegral n * signum d
+    | [x, y] <- map (map (uncurry' V2) . sort . chunksOf 2 . readOnlyNums) (lines input)
+    , let d = y - x, part2 || 0 `elem` d, n <- [0..maximum d] ]
 
