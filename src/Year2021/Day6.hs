@@ -10,7 +10,7 @@ part1, part2 :: Int
 part1 = 80
 part2 = 256
 
-main = readFile (replaceExtension __FILE__ ".in") >>= print . sum
-  . (!! part2) . transpose . map ((`drop` fish) . (8 -)) . readOnlyNums
-    where fish = replicate 9 1 ++ zipWith (+) fish (tail (tail fish))
+main = readFile (replaceExtension __FILE__ ".in") >>=
+  print . sum .  map ((drop part2 fish !!) . (8 -)) . readOnlyNums
+  where fish = replicate 9 1 ++ zipWith (+) fish (tail (tail fish))
 
