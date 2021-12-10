@@ -1,20 +1,15 @@
 {-# LANGUAGE CPP #-}
-{-# LANGUAGE RecordWildCards #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE LambdaCase #-}
 
 module Year2021.Day10 where
 
 import Safe
 import Text.Megaparsec
-import Text.Megaparsec.Char
 import Data.List
 import Data.Either
-import Data.Ord
-import qualified Data.List.NonEmpty as NE
-import qualified Data.Set as Set
-import qualified Data.Bimap as Bimap
-import Control.Monad
 import System.FilePath
+import Data.Generics
 
 part1, part2 :: [Either Char String] -> Int
 part1 = sum . map (`lookupJust` table) . lefts
@@ -24,20 +19,21 @@ part2 = fst . head . filter (uncurry (==)) . (zip <*> reverse) . sort . map scor
         score = foldl (\s x -> s * 5 + x) 0 . map (`lookupJust` table)
 
 parser :: Parsec (Int, Char) String ()
-parser = void . many . choice . map match $ words "{} [] () <>" where
+parser = (() <$) . many . choice . map match $ words "{} [] () <>" where
   match [x, y] = do
     o <- getOffset
     single x
     observing (parser *> single y) >>= \case
-      Left err -> registerFancyFailure (Set.singleton (ErrorCustom (o, x))) *> parseError err
+      Left err -> registerParseError err *> customFailure (o, x)
       Right _ -> return ()
 
-foldErrors :: Either (ParseErrorBundle String (Int, Char)) a -> Either Char String
-foldErrors (Left ParseErrorBundle{..}) = case token of
-  Just (Tokens (x NE.:| _)) -> Left x
-  Just EndOfInput -> Right . map snd $ sortOn Down
-    [e | FancyError _ xs <- expected, ErrorCustom e <- Set.toList xs]
-  where TrivialError _ token _ NE.:| expected = bundleErrors
+foldErrors :: Either (ParseErrorBundle String (Int, Char)) () -> Either Char String
+foldErrors errs = case something (mkQ Nothing queryToken) errs of
+  Just (Tokens xs) -> Left . head $ listify (const True) xs
+  Just EndOfInput -> Right . reverse . map snd . sort $
+    listify (\(_ :: (Int, Char)) -> True) errs
+  where queryToken :: ParseError String (Int, Char) -> Maybe (ErrorItem Char)
+        queryToken = \case TrivialError _ (Just token) _ -> Just token ; _ -> Nothing
 
 main = readFile (replaceExtension __FILE__ ".in") >>=
   print . part2 . map (foldErrors . parse (parser <* eof) "") . lines
