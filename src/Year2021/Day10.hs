@@ -3,28 +3,28 @@
 module Year2021.Day10 where
 
 import Util
+import Safe
 import Data.Maybe
+import Data.Either
 import Data.List
 import System.FilePath
 import qualified Data.Bimap as Bimap
 
-pairs :: (Char -> Maybe Int, String -> Maybe Int) -> String -> String -> Maybe Int
-pairs fs@(f,g) ns [] = g ns
-pairs fs@(f,g) [] (x:xs) = pairs fs [x] xs
-pairs fs@(f,g) (n:ns) (x:xs) = case (== n) <$> Bimap.lookupR x brackets of
-  Nothing -> pairs fs (x:n:ns) xs
-  Just True -> pairs fs ns xs
-  _ -> f x
+pairs :: String -> String -> Either Char String
+pairs ns [] = Right ns
+pairs [] (x:xs) = pairs [x] xs
+pairs (n:ns) (x:xs) = case (== n) <$> Bimap.lookupR x brackets of
+  Nothing -> pairs (x:n:ns) xs
+  Just True -> pairs ns xs
+  _ -> Left x
 
-part1, part2 :: ((Char -> Maybe Int, String -> Maybe Int), [Int] -> Int)
-part1 = ((flip lookup table, const Nothing), sum)
+part1, part2 :: [Either Char String] -> Int
+part1 = sum . map (`lookupJust` table) . lefts
   where table = [(')', 3), (']', 57), ('}', 1197), ('>', 25137)]
-part2 = ((const Nothing, score), median)
+part2 = fst . head . filter (uncurry (==)) . (zip <*> reverse) . sort . map score . rights
   where table = [('(', 1), ('[', 2), ('{', 3), ('<', 4)]
-        median = fst . head . filter (uncurry (==)) . (zip <*> reverse) . sort
-        score = Just . foldl (\s x -> s * 5 + x) 0 . mapMaybe (`lookup` table)
+        score = foldl (\s x -> s * 5 + x) 0 . map (`lookupJust` table)
 
 main = readFile (replaceExtension __FILE__ ".in") >>= 
-  print . fold . mapMaybe (pairs fs []) . lines
-  where (fs, fold) = part2
+  print . part2 . map (pairs []) . lines
 
