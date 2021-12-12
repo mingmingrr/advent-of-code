@@ -1,29 +1,30 @@
 {-# LANGUAGE CPP #-}
+{-# LANGUAGE TupleSections #-}
+{-# LANGUAGE ViewPatterns #-}
 
 module Year2021.Day12 where
 
-import Data.Map (Map)
-import qualified Data.Map as Map
-import Control.Monad
-import Data.Maybe
+import Util
 import Data.Char
-import Data.List
 import Data.List.Split
+import Control.Lens hiding ((&))
 import System.FilePath
+import Data.Bimap hiding (map)
+import Data.Graph.Inductive
 
 part1, part2 :: Bool
-part1 = False
-part2 = True
+part1 = True
+part2 = False
 
-paths :: Map String [String] -> Int
-paths grid = g Nothing [] "start" where
-  g _ _ "end" = 1
-  g double seen posn = sum
-    [ g (if dupe then Just p else double) (posn : seen) p
-    | p <- grid Map.! posn \\ ["start"]
-    , let dupe = isLower (head p) && p `elem` seen
-    , not dupe || part2 && isNothing double ]
+paths :: Bool -> Gr (Bool, String) a -> Node -> Int
+paths double graph posn = case match posn graph of
+  (Just (_, _, (_, "end"), _), _) -> 1
+  (Just ctx@(_, _, (True, "start"), _), _) -> 0
+  (Just ctx@(_, _, (visited, name), out), (set (_3 . _1) True ctx &) -> graph')
+    | not (dupe && double) -> sum $ map (paths (dupe || double) graph' . snd) out
+    where dupe = isLower (head name) && visited
+  _ -> 0
 
-main = readFile (replaceExtension __FILE__ ".in") >>=
-  print . paths . Map.fromListWith (++) .
-    (lines >=> \xs -> let [x,y] = splitOn "-" xs in [(x,[y]),(y,[x])])
+main = readFile (replaceExtension __FILE__ ".in") >>= \xs ->
+  let (bimap, gr) = fromEdges . map (uncurry' (,,()) . splitOn "-") $ lines xs
+   in print $ paths part2 (undir (nmap (False,) gr)) (bimap !> "start")
