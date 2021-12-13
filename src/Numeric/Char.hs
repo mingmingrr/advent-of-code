@@ -1,5 +1,7 @@
 module Numeric.Char where
 
+import Data.Char
+
 instance Num Char where
   (+) = error "char: undefined (+)"
   (*) = error "char: undefined (*)"

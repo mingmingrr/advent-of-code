@@ -16,7 +16,8 @@
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE TemplateHaskell #-}
 
-module Year2021.DayX where
+-- module Year2021.DayX where
+module DayX where
 
 import Util
 import Data.Cyclic (Cyclic, Cyclic2)
@@ -73,7 +74,7 @@ import Data.Functor.Identity
 import Data.Either
 import Data.Maybe
 import Data.List
-import Data.List.Extra
+import qualified Data.List.Extra as Extra
 import Data.List.Split
 import qualified Data.Conduit as Cond
 import Data.Conduit ((.|))

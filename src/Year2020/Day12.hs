@@ -31,13 +31,13 @@ part1 = (V2 1 0, Lens.Lens pos)
 part2 = (V2 10 0, Lens.Lens dir)
 
 move :: Lens.Lens' Ship (V2 Int) -> String -> State Ship ()
-move lens (fmap (second read) . uncons -> Just (chr, step)) =
-  case directions Map.!? chr of
+move lens (uncons -> Just (chr, read -> step)) =
+  case compass Map.!? chr of
     Just d -> lens += fromIntegral step * d
     Nothing -> case chr of
       'F' -> Lens.uses dir (* fromIntegral step) >>= (pos +=)
-      'R' -> dir %= (!! mod (div step 90) 4) . iterate clockWise
-      'L' -> dir %= (!! mod (div step 90) 4) . iterate counterClockWise
+      'R' -> dir %= (!! mod (div step 90) 4) . iterate rotateCW
+      'L' -> dir %= (!! mod (div step 90) 4) . iterate rotateCCW
 
 main = do
   input <- readFile (replaceExtension __FILE__ ".in")

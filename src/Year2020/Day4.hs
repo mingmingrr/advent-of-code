@@ -38,9 +38,6 @@ part1 s = Map.keysSet fields `Set.isSubsetOf` Map.keysSet s
 part2 s = Map.keysSet fields `Set.isSubsetOf` Map.keysSet s
    && and [f v | (c, f) <- Map.toList fields, let v = s Map.! c]
 
-main = do
-  input <- readFile (replaceExtension __FILE__ ".in")
-  print . length . filter part2
-    . map (Map.fromList . map (tuplify . splitOn ":") . (>>= words))
-    $ paragraphs input
+main = readFile (replaceExtension __FILE__ ".in") >>= print . length . filter part2
+  . map (Map.fromList . (>>= map (tuplify . splitOn ":") . words)) . paragraphs
 

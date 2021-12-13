@@ -3,7 +3,7 @@
 
 module Year2020.Day20 where
 
-import Util
+import Util hiding ((??))
 
 import Numeric.LinearAlgebra
 

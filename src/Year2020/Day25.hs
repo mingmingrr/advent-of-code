@@ -1,15 +1,20 @@
 {-# LANGUAGE CPP #-}
+{-# LANGUAGE DataKinds #-}
 
 module Year2020.Day25 where
 
+import Util
+
 import System.FilePath
 
-import Math.NumberTheory.Powers.Modular
+import Data.Mod
+import Math.NumberTheory.Moduli.Class
 
 part1 :: [Int] -> Int
-part1 [x, y] = x ^% head (filter (\i -> powModInt 7 i 20201227 == y) [0..])
+part1 [x, y] = fromIntegral . getVal $ z x ^% head [n | n <- [0..], 7 ^% n == z y]
+  where z :: Int -> Mod 20201227
+        z = fromIntegral
 
-main = do
-  input <- readFile (replaceExtension __FILE__ ".in")
-  print . part1 . map read $ lines input
+main = readFile (replaceExtension __FILE__ ".in") >>=
+  print . part1 . map read . lines
 

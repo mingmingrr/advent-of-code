@@ -30,6 +30,7 @@ import qualified Control.Monad.Combinators as Comb
 
 import System.FilePath
 
+import Data.Graph.Inductive (Gr)
 import qualified Data.Graph.Inductive as Graph
 import qualified Data.Bimap as Bimap
 import qualified Data.Tree as Tree
