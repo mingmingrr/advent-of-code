@@ -8,20 +8,15 @@ import Data.List
 import Data.Ord
 import Data.Char
 import System.FilePath
-import Data.Map (Map)
-import qualified Data.Map as Map
+import Data.Graph.Inductive
 
-part1, part2 :: Map (V2 Int) Char -> Int
-part1 canyon = sum [digitToInt v + 1
-  | (k, v) <- Map.toList canyon
-  , and [maybe True (> v) (canyon Map.!? (k + d)) | d <- adjacent] ]
-part2 canyon = product . take 3 . sortOn Down
-  . run . Map.keys $ Map.filter (/= '9') canyon
-  where run [] = []
-        run (n:ns) = length visit : run (ns \\ visit)
-          where visit = map (head . snd) (dijkstra neigh n)
-                neigh p = [(1, n) | n <- map (+p) adjacent, n `elem` ns]
+part1, part2 :: Gr (V2 Int, Char) (Char, Char) -> Int
+part1 graph = sum [ digitToInt (snd (lab' ctx)) + 1
+  | ctx <- contexts graph
+  , all (uncurry (<) . edgeLabel) (out' ctx) ]
+part2 = product . take 3 . sortOn Down . map length
+  . scc . labfilter ((/= '9') . snd)
 
 main = readFile (replaceExtension __FILE__ ".in") >>=
-  print . part2 . Map.fromList . labelGrid . lines
+  print . part1 . snd . fromGrid adjacent . lines
 
