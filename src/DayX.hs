@@ -16,10 +16,11 @@
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE TemplateHaskell #-}
 
--- module Year2021.DayX where
+-- module Year2022.DayX where
 module DayX where
 
 import Util
+import Safe
 import Data.Cyclic (Cyclic, Cyclic2)
 import qualified Data.Cyclic as Cyclic
 import Data.Grid (Grid)
@@ -142,5 +143,7 @@ import qualified Language.Haskell.TH.Syntax as TH
 
 main = do
   input <- readFile (replaceExtension __FILE__ ".in")
+  let nums = map readOnlyNums $ lines input
+  let grid = Map.fromList . labelGrid $ lines input
   print input
 

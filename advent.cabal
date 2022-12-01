@@ -19,10 +19,12 @@ executable advent
   -- other-extensions:
   build-depends:       base
 
+                     , cryptonite
                      , megaparsec
                      , lens
                      , conduit
                      , arithmoi
+                     , mod
                      , logict
                      , linear
                      , random
@@ -44,7 +46,7 @@ executable advent
                      , parser-combinators
                      , algebraic-graphs
                      , map-syntax
-                     , regex-pcre
+                     , regex-pcre-builtin
                      , extra
                      , bimap
                      , data-default
