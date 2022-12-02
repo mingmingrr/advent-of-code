@@ -3,9 +3,9 @@ module Numeric.Char where
 import Data.Char
 
 instance Num Char where
-  (+) = error "char: undefined (+)"
+  x + y = chr (ord x + ord y)
+  x - y = chr (ord x - ord y)
   (*) = error "char: undefined (*)"
-  (-) = error "char: undefined (-)"
   abs = error "char: undefined abs"
   signum = error "char: undefined signum"
   fromInteger = intToDigit . fromInteger
