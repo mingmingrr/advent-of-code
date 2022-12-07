@@ -290,7 +290,7 @@ using mod = (>>= everywhereM (mkM (resolve mod))) where
 (??) = flip fromMaybe
 infixl 9 ??
 
-(!??) :: (Lens.At a, Num (Lens.Index a), Num (Lens.IxValue a))
+(!??) :: (Lens.At a, Num (Lens.IxValue a))
   => a -> Lens.Index a -> Lens.IxValue a
 m !?? n = fromMaybe 0 (m ^. Lens.at n)
 infixl 9 !??
