@@ -6,6 +6,7 @@ import Util
 import Safe
 import Linear.V2
 import System.FilePath
+import Data.List
 import Data.Map ((!))
 
 snek :: V2 Int -> V2 Int -> V2 Int
@@ -18,7 +19,7 @@ part1 = 2
 part2 = 10
 
 main = readFile (replaceExtension __FILE__ ".in")
-  >>= print . length . nubSet . map last
-    . scanl (\(n:ns) dir -> scanl snek (n + directions ! dir) ns) (replicate part2 0)
+  >>= print . length . nubSet . (!! pred part2) . transpose
+    . scanl (\(n:ns) dir -> scanl snek (n + directions ! dir) ns) (repeat 0)
     . concatMap (uncurry' (flip (replicate . read)) . words) . lines
 
