@@ -202,7 +202,10 @@ tuplify :: Lens.Simple Lens.Each b a => [a] -> b
 tuplify xs = undefined & Lens.partsOf Lens.each .~ xs
 
 uncurry' :: (a -> a -> b) -> [a] -> b
-uncurry' f = uncurry f . tuplify
+uncurry' f [x,y] = f x y
+
+uncurry3' :: (a -> a -> a -> b) -> [a] -> b
+uncurry3' f [x,y,z] = f x y z
 
 runMap' :: Ord k => MapSyntaxM k v a -> Map.Map k v
 runMap' = either (error "invalid MapSyntax") id . runMap
