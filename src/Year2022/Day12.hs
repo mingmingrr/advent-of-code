@@ -9,7 +9,7 @@ import Data.Map (Map)
 import qualified Data.Map as Map
 
 neigh :: Map (V2 Int) Char -> V2 Int -> [(Int, V2 Int)]
-neigh grid p = map ((,) 1) (neighbors adjacent
+neigh grid p = map ((,) 1) (neighbors orthogonal
   [ maybe False ((>= elev (grid Map.! p) - 1) . elev) . flip Map.lookup grid ] p)
   where elev x = fromEnum . maybe x id $ lookup x [('S', 'a'), ('E', 'z')]
 

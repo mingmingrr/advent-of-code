@@ -12,7 +12,7 @@ import Data.Map ((!))
 snek :: V2 Int -> V2 Int -> V2 Int
 snek x y | all (< 2) (abs (x - y)) = y
 snek x y = findJust (all (< 2) . abs . subtract x) . map (+ y) $
-  if 0 `elem` (x - y) then adjacent else diagonal
+  if 0 `elem` (x - y) then orthogonal else diagonal
 
 part1, part2 :: Int
 part1 = 2

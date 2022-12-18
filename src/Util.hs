@@ -83,8 +83,8 @@ dijkstra neighbors start = go Set.empty queue0 where
     Just _ -> error "dijkstra: invalid queue"
     Nothing -> []
 
-adjacent, diagonal :: Num a => [V2 a]
-adjacent = [V2 1 0, V2 0 1, V2 (-1) 0, V2 0 (-1)]
+orthogonal, diagonal :: Num a => [V2 a]
+orthogonal = [V2 1 0, V2 0 1, V2 (-1) 0, V2 0 (-1)]
 diagonal = [V2 1 1, V2 (-1) 1, V2 1 (-1), V2 (-1) (-1)]
 
 bounds :: (Foldable t, Applicative f, Ord a) => t (f a) -> (f a, f a)

@@ -23,7 +23,7 @@ parser ('n':'w':xs) = V2 (-1) 1 : parser xs
 parser ('n':'e':xs) = V2 0 1    : parser xs
 
 around :: [V2 Int]
-around = adjacent <> [V2 1 (-1), V2 (-1) 1]
+around = orthogonal <> [V2 1 (-1), V2 (-1) 1]
 
 life :: [V2 Int] -> [V2 Int]
 life xs = filter live . nubOrd $ neighbors (0:around) [] =<< xs where

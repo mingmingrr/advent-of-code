@@ -18,5 +18,5 @@ part2 = product . take 3 . sortOn Down . map length
   . scc . labfilter ((/= '9') . snd)
 
 main = readFile (replaceExtension __FILE__ ".in") >>=
-  print . part1 . snd . fromGrid adjacent . lines
+  print . part1 . snd . fromGrid orthogonal . lines
 

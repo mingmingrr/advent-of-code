@@ -19,7 +19,7 @@ check m v k = m Grid.!? k == Just v
 
 around :: Look -> Seats -> V2 Int -> Int
 around f m k = length [()
-  | d <- adjacent <> diagonal
+  | d <- orthogonal <> diagonal
   , check m '#' . f m . tail $ iterate (+ d) k ]
 
 iter :: (Int, Look) -> Seats -> Seats

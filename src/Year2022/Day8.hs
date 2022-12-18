@@ -10,7 +10,7 @@ import System.FilePath
 
 scan :: Grid Int -> (Int, Int) -> Int -> (Bool, Int)
 scan grid posn height = bimap or product . unzip $
-  map (foldr g undefined . tail . flip iterate p . (+)) adjacent
+  map (foldr g undefined . tail . flip iterate p . (+)) orthogonal
   where
     p = partsOf each .~ posn ^.. each $ 0
     g = maybe (const (True, 0 :: Int))
