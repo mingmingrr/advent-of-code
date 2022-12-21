@@ -305,3 +305,12 @@ zipper :: [a] -> [([a], a, [a])]
 zipper [] = []
 zipper (x:xs) = ([], x, xs) : [ (x:a, b, c) | (a, b, c) <- zipper xs ]
 
+operators :: Integral a => [(Char, a -> a -> a)]
+operators = [('+', (+)), ('-', (-)), ('*', (*)), ('/', div), ('%', mod)]
+
+operators' :: Fractional a => [(Char, a -> a -> a)]
+operators' = [('+', (+)), ('-', (-)), ('*', (*)), ('/', (/))]
+
+operatorsT :: [(Char, Char)]
+operatorsT = [('+', '-'), ('-', '+'), ('*', '/'), ('/', '*')]
+
