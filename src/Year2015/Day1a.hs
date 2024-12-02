@@ -1,5 +1,1 @@
-parse '(' = 1
-parse ')' = (-1)
-parse _ = 0
-
-main = getContents >>= print . sum . map parse
+main = getLine >>= print . sum . map (maybe 0 id . (`lookup` [('(', 1), (')', -1)]))
